@@ -1,6 +1,8 @@
 FROM quay.io/eclipse/che-nodejs10-ubi:nightly
 
-RUN yum install python3
+USER root
+
+RUN yum install -y python3
 RUN pip3 install sphinx-js
 
 RUN npm install -g yarn 
