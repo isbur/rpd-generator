@@ -1,0 +1,40 @@
+apiVersion: 1.0.0
+metadata:
+  name: inno
+  generateName: inno-
+components:
+  - id: che-incubator/typescript/latest
+    memoryLimit: 512Mi
+    type: chePlugin
+  - mountSources: true
+    endpoints:
+      - name: nodejs
+        port: 3000
+    memoryLimit: 512Mi
+    type: dockerimage
+    alias: nodejs
+    image: node
+projects:
+  - name: rpd-generator
+    source:
+      type: git
+      location: https://github.com/isbur/rpd-generator
+commands:
+  - name: Attach remote debugger
+    actions:
+      - referenceContent: |
+          {
+            "version": "0.2.0",
+            "configurations": [
+              {
+                "type": "node",
+                "request": "attach",
+                "name": "Attach to Remote",
+                "address": "localhost",
+                "port": 9229,
+                "localRoot": "${workspaceFolder}",
+                "remoteRoot": "${workspaceFolder}"
+              }
+            ]
+          }
+        type: vscode-launch
