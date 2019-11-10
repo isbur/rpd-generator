@@ -1,4 +1,4 @@
-# rpd-generator-public
+# Генератор РПД
 
 ## dockerimage
 
