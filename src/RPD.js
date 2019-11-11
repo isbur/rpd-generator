@@ -1,9 +1,9 @@
 /**
  * Создание файлов РПД. В действительности функция не принимает никаких аргументов, а инициализирует переменные с аналогичными названиями.
- * @param templatesFolder
- * @param disciplineSheet
+ * @param templatesFolder - Папка контентных шаблонов.
+ * @param disciplineSheet - Файл "Выгрузка  дисциплин из УП".
  * @param disciplineSheet.values[].row.year
- * @param parameterSpreadsheet
+ * @param parameterSpreadsheet - Файл "Параметры для создания РПД"
  * @param parameterSpreadsheet.competencies
  * @see getRPDCompetencies
  * @see helpers.js
