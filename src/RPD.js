@@ -1,45 +1,50 @@
 /**
- * создание файлов РПД
+ * Создание файлов РПД. В действительности функция не принимает никаких аргументов, а инициализирует переменные с аналогичными названиями.
+ * @param templatesFolder
+ * @param disciplineSheet
+ * @param disciplineSheet.values[].row.year
+ * @param parameterSpreadsheet
+ * @param parameterSpreadsheet.competencies
+ * @see getRPDCompetencies
+ * @see helpers.js
  */
 function createRPD() {
+	
   // папка контентных шаблонов
   var templatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
+  // имена файлов контентных шаблонов
+  var templateNames = getTemplateNames(templatesFolder);
 
   // файл "Выгрузка  дисциплин из УП"
   var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+  // значения таблицы "Выгрузка  дисциплин из УП"
+  var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
 
   // файл "Параметры для создания РПД"
   var parameterSpreadsheet = SpreadsheetApp.openById('1qO5RDdykeb0KjvlXeqNqNt3ZRAPlCTo0j0ClrXYkec0');
+  // получаем данные компетенций
+  var competencies = getRPDCompetencies(parameterSpreadsheet);
+  // берем данные из файла "Параметры для создания РПД"
+  var variations = getVariations(parameterSpreadsheet);
+  // собираем данные о пререквизитах
+  var prerequisitesValues = getPrerequisitesValues(parameterSpreadsheet);
+  // получаем инфу о профессиональной области дисциплин
+  var profs = getProfs(parameterSpreadsheet);
 
-  // значения таблицы "Выгрузка  дисциплин из УП"
-  var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
 
   // берем инфу о соответствии названий дисциплин и id контентных шаблонов
   var connectValues = getConnectValues();
 
-  // имена файлов контентных шаблонов
-  var templateNames = getTemplateNames(templatesFolder);
-
-  // получаем данные компетенций
-  var competencies = getRPDCompetencies(parameterSpreadsheet);
-
   // берем данные о дисциплинах из файла "Литература для дисциплин"
   var extraData = getExtraData();
-
-  // берем данные из файла "Параметры для создания РПД"
-  var variations = getVariations(parameterSpreadsheet);
-
-  // собираем данные о пререквизитах
-  var prerequisitesValues = getPrerequisitesValues(parameterSpreadsheet);
 
   // дополнительные данные о дисциплинах
   var description = getDescription();
 
-  // получаем инфу о профессиональной области дисциплин
-  var profs = getProfs(parameterSpreadsheet);
 
   var connect, id, name, docName, templateName;
   var files, year, doc, docBody, prerequisites;
+
 
   // пробегаемся по каждой строке файла всех дисциплин
   values.forEach(function(row, inx) {
@@ -70,6 +75,7 @@ function createRPD() {
     }
   });
 }
+
 
 function processDoc(doc, values, competencies, extraData, variations, prerequisites, profs, desc, id) {
   var nameEng = toStr(values[9]);

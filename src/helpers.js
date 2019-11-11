@@ -253,6 +253,16 @@ function deleteFiles(folder) {
   }
 }
 
+
+/**
+ * Функция берёт первые три столбца каждого из листов с компетенциями 
+ * и собирает их в массив из трёх словарей. Судя по всему, функция
+ * без проблем переживёт добавление новых компетенций: для определения
+ * границ диапазона используются метод getLastRow() и свойство length
+ * (в зависимости от ситуации).
+ * @param {Spreadsheet} spreadSheet - Таблица с компетенциями.
+ * @returns {Object[]} competencies - Массив из трёх словарей.
+*/
 function getRPDCompetencies(spreadSheet) {
   var sheet1 = spreadSheet.getSheetByName('Компетенции бакалавров');
   var sheet2 = spreadSheet.getSheetByName('Компетенции магистров');
@@ -289,6 +299,7 @@ function getRPDCompetencies(spreadSheet) {
   
   return competencies;
 }
+
 
 function getExtraData() {
   var booksSheetID = '1qms0QwsDHIHC7HaKZVMO7WFklin0sXkU_HCmUhuXnGo';
