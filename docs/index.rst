@@ -14,6 +14,10 @@ RPD.js
 ======
 .. js:autofunction:: createRPD
 
+RPD.js
+======
+.. js:autofunction:: getRPDCompetencies
+
 Indices and tables
 ==================
 
