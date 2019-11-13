@@ -6,9 +6,11 @@
 
 
 // var RPD_MAIN_FOLDER_ID = '1qzgByLsm73nClqWiuYTM2dbkuDQvFhz5'
-var RPD_MAIN_FOLDER_ID = '1BLupPMJ_LQfdBIa18jY5bhGN2GX6beiS';
-var FILE_DIRECTORY_LEVEL = 4;
-var PROCESSED_FILES_LIMIT = 1
+ var RPD_MAIN_FOLDER_ID = '1BLupPMJ_LQfdBIa18jY5bhGN2GX6beiS';
+// var RPD_MAIN_FOLDER_ID = '1vnftIwZ06iueU6tdwjLf0GVdFJtPUQ3-';   // 2015 only
+var CONTROL_SPREADSHEET_ID = '1jtOo9-VtaE8D1B6UErDgdprW3SoeGo20ZDkarnubV2Q'
+var TITLE_PAGES_FILE_ID = '1GWrST6ZnD5HowJuDEhTC9mBaOsprhMLOEY_yb46Qy5E'
+var PROCESSED_FILES_LIMIT = 30
 
 var global_execution_flag = true;
 var global_file_counter = 0;
@@ -17,10 +19,15 @@ var global_file_counter = 0;
 
 function fetchTitlePages() {
     var RPD_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
-    var output_file = DocumentApp.create("Титульники")
+    var output_doc = DocumentApp.create("Титульники")
+    var output_doc_id = output_doc.getId()
 
     var depth = 0
-    walkThrough(RPD_folder, depth, "intermidiate folder", defaultWalkThroughAction)
+    walkThrough(RPD_folder, depth, "intermidiate folder", defaultWalkThroughAction, output_doc)
+    output_doc.saveAndClose()
+
+    var output_file = DriveApp.getFileById(output_doc_id)
+    RPD_folder.addFile(output_file)
 }
 
 
@@ -31,7 +38,8 @@ function walkThrough(
     generalizedFile,
     depth,
     previoudGeneralizedFileType,
-    WalkThroughAction
+    WalkThroughAction,
+    output_doc
 )
 {
     if (global_execution_flag === false) {
@@ -51,7 +59,7 @@ function walkThrough(
         }
         while (generalizedFileIterator.hasNext()){
             var childGeneralizedFile = generalizedFileIterator.next();
-            walkThrough(childGeneralizedFile, depth + 1, generalizedFileType, defaultWalkThroughAction)
+            walkThrough(childGeneralizedFile, depth + 1, generalizedFileType, defaultWalkThroughAction, output_doc)
         }
     } else if (generalizedFileType == "file"){
         Logger.log("I'm a file");
@@ -62,21 +70,58 @@ function walkThrough(
 
         var doc = DocumentApp.openById(generalizedFile.getId())
         var docBody = doc.getBody()
-        var n = docBody.getNumChildren();
-        for (var i = 0; i < n; i++){
-            elem = docBody.getChild(i)
-            var elem_type = elem.getType()
-            Logger.log(elem_type)
-            if (elem_type ==  DocumentApp.ElementType.PARAGRAPH) {
-                Logger.log(elem.getText())
+
+        var output_body = output_doc.getBody()
+        var previous_elem = docBody.getChild(0)
+        var n = docBody.getNumChildren()
+
+        for (var i = 1; i < n; i++) {
+            var elem = docBody.getChild(i).copy()
+            appendElem(elem, output_body)
+            if (previous_elem.getText() == "ИННОПОЛИС") {
+                Logger.log("Matched INNO")
+                if (elem.getText() == "2018 г.") {
+                    Logger.log("Matched 2018!")
+                    break
+                }
             }
+            previous_elem = elem
+
         }
+
+        output_body.appendPageBreak
+
+
         doc.saveAndClose()
 
-        //var inno_position = docBody.findText("ИННОПОЛИС")
-        //var year_position = docBody.findText("2018", inno_position)
     } else {
         throw "Unknown generalizedFileType value"
+    }
+}
+
+
+function recoursevlyFindPreviousSiblingAndAppend(elem, body){
+    Logger.log(elem)
+    if (elem === null) {
+        return
+    }
+    recoursevlyFindPreviousSiblingAndAppend(elem.getPreviousSibling(), body)
+    appendElem(elem, body)
+}
+
+
+function appendElem(elem, body){
+    switch (elem.getType()) {
+        case DocumentApp.ElementType.PARAGRAPH:
+            // Logger.log(elem.getText())
+            body.appendParagraph(elem)
+            break
+        case DocumentApp.ElementType.INLINE_IMAGE:
+            body.appendImage(elem)
+            break
+        case DocumentApp.ElementType.TABLE:
+            body.appendTable(elem)
+            break
     }
 }
 
