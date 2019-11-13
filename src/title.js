@@ -8,12 +8,16 @@
 // var RPD_MAIN_FOLDER_ID = '1qzgByLsm73nClqWiuYTM2dbkuDQvFhz5'
 var RPD_MAIN_FOLDER_ID = '1BLupPMJ_LQfdBIa18jY5bhGN2GX6beiS';
 var FILE_DIRECTORY_LEVEL = 4;
+var PROCESSED_FILES_LIMIT = 1
+
+var global_execution_flag = true;
+var global_file_counter = 0;
 
 
 
 function fetchTitlePages() {
     var RPD_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
-    var output_file = DriveApp.create("Титульники")
+    var output_file = DocumentApp.create("Титульники")
 
     var depth = 0
     walkThrough(RPD_folder, depth, "intermidiate folder", defaultWalkThroughAction)
@@ -30,8 +34,13 @@ function walkThrough(
     WalkThroughAction
 )
 {
+    if (global_execution_flag === false) {
+        return
+    }
+
     var generalizedFileType = determineGeneralizedFileType(generalizedFile, previoudGeneralizedFileType);
     WalkThroughAction(generalizedFile, depth, generalizedFileType);
+
     if (generalizedFileType.indexOf("folder")>-1) {
         if (generalizedFileType === "intermidiate folder"){
             var generalizedFileIterator = generalizedFile.getFolders()
@@ -44,14 +53,28 @@ function walkThrough(
             var childGeneralizedFile = generalizedFileIterator.next();
             walkThrough(childGeneralizedFile, depth + 1, generalizedFileType, defaultWalkThroughAction)
         }
-    } else if (generalizedFileType === "file"){
+    } else if (generalizedFileType == "file"){
         Logger.log("I'm a file");
+        global_file_counter = global_file_counter + 1
+        if (global_file_counter > PROCESSED_FILES_LIMIT){
+            global_execution_flag = false
+        }
+
         var doc = DocumentApp.openById(generalizedFile.getId())
         var docBody = doc.getBody()
-        var docParagraphs = docBody.getParagraphs()
-        docParagraphs.forEach(Logger.log(paragraph))
-        var inno_position = docBody.findText("ИННОПОЛИС")
-        var year_position = docBody.findText("2018", inno_position)
+        var n = docBody.getNumChildren();
+        for (var i = 0; i < n; i++){
+            elem = docBody.getChild(i)
+            var elem_type = elem.getType()
+            Logger.log(elem_type)
+            if (elem_type ==  DocumentApp.ElementType.PARAGRAPH) {
+                Logger.log(elem.getText())
+            }
+        }
+        doc.saveAndClose()
+
+        //var inno_position = docBody.findText("ИННОПОЛИС")
+        //var year_position = docBody.findText("2018", inno_position)
     } else {
         throw "Unknown generalizedFileType value"
     }
