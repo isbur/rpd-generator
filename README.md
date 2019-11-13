@@ -8,6 +8,13 @@ https://drive.google.com/drive/folders/1vwloMcEt6jZ3hJuH8ROcSQBIXgu6VBUa – о�
 
 https://github.com/google/clasp – инструмент для переноса workflow разработки из браузера в произвольную IDE
 
+```
+clasp login --no-localhost
+cd src
+clasp open
+clasp push
+```
+
 `clasp clone <script_ID>` – script_ID единый для всех `.gs` файлов, привязанных к spreadsheet
 
 ## dockerimage
