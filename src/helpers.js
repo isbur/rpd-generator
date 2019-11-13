@@ -577,4 +577,8 @@ function getCompetenceName(code) {
   if (code.indexOf('УК') === 0) {
     return 'универсальные';
   }
+  
+  if (code.indexOf('ПСК') === 0) {
+    return 'профессионально-специализированные';
+  }
 }

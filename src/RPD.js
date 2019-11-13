@@ -405,9 +405,7 @@ function setCompetencies(doc, competencies, compInfo, forms, id) {
         code = competencies[j].trim();
         table.replaceText('{k' + (j + 1) + '_code}', code);
 
-        if (!compInfo[code]) {
-
-        } else {
+        if (compInfo[code]) {
           table.replaceText('{k' + (j + 1) + '_name}', compInfo[code].name);
           table.replaceText('{k' + (j + 1) + '_results}', compInfo[code].results);
         }
