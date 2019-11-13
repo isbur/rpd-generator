@@ -13,100 +13,119 @@ var TITLE_PAGES_FILE_ID = '1GWrST6ZnD5HowJuDEhTC9mBaOsprhMLOEY_yb46Qy5E'
 var PROCESSED_FILES_LIMIT = 30
 
 var global_execution_flag = true;
+var global_next_folder = RPD_MAIN_FOLDER_ID
 var global_file_counter = 0;
 
 
+function launchTitlePagesFetching() {
 
-function fetchTitlePages() {
     var RPD_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
-    var output_doc = DocumentApp.create("Титульники")
-    var output_doc_id = output_doc.getId()
+    var control_spreadsheet = SpreadsheetApp.openById('1jtOo9-VtaE8D1B6UErDgdprW3SoeGo20ZDkarnubV2Q')
+    var control_sheet = control_spreadsheet.getSheetByName("Control Variables")
+    var freshStartFlag = control_sheet.getRange("B1").getValue()
+    Logger.log(freshStartFlag)
+    if (freshStartFlag == 1) {
+        control_sheet.getRange("B1").setValue(0)    // Fresh start flag
+        control_sheet.getRange("B2").setValue(1)    // Next folder number
+        var start_folder = walkDeeper(RPD_folder, "intermidiate folder")
+        var start_point = start_folder.getFiles()
+    } else {
+        var continuationToken = control_sheet.getRange("B3")
+        var start_point = DriveApp.continueFileIterator(continuationToken)
 
-    var depth = 0
-    walkThrough(RPD_folder, depth, "intermidiate folder", defaultWalkThroughAction, output_doc)
-    output_doc.saveAndClose()
+        if (!start_point.hasNext()){
+            var next_folder_number = control_sheet.getRange("B2").getValue()
+            var folder_sheet = control_spreadsheet.getSheetByName("Folders")
+            var next_folder_name = folder_sheet.getRange(2+next_folder_number, 1).getValue()
+            global_next_folder = RPD_folder.getFoldersByName(next_folder_name).next()
+            var start_folder = walkDeeper(global_next_folder, "intermidiate folder", 0)
+            start_point = start_folder.getFiles()
+        }
+    }
 
-    var output_file = DriveApp.getFileById(output_doc_id)
-    RPD_folder.addFile(output_file)
+    var continuationToken = walkThroughDirectory(start_point)
+
+    var token_dump_sheet = control_spreadsheet.getSheetByName("Token Dump")
+    token_dump_sheet.insertRowAfter(1)
+    token_dump_sheet.getRange("A2").setValue(Date.now())
+    token_dump_sheet.getRange("B2").setValue(continuationToken)
+
+    control_sheet.getRange("B3").setValue(continuationToken)
+
+}
+
+
+function walkThroughDirectory(fileIterator){
+    while (fileIterator.hasNext() && global_execution_flag){
+        file = fileIterator.next()
+        extractTitlePageFromDoc(file)
+        global_file_counter = global_file_counter + 1
+        if (global_file_counter > PROCESSED_FILES_LIMIT){
+            global_execution_flag = false
+        }
+    }
 }
 
 
 /**
- * @param {Folder/File} generalizedFile
+ * We assume that there is only one folder containing files
+ * @param {Folder/File}
  */
-function walkThrough(
-    generalizedFile,
-    depth,
-    previoudGeneralizedFileType,
-    WalkThroughAction,
-    output_doc
+function walkDeeper(
+    generalizedFile, previousGeneralizedFileType, depth
 )
 {
-    if (global_execution_flag === false) {
-        return
-    }
-
-    var generalizedFileType = determineGeneralizedFileType(generalizedFile, previoudGeneralizedFileType);
-    WalkThroughAction(generalizedFile, depth, generalizedFileType);
+    var generalizedFileType = determineGeneralizedFileType(generalizedFile, previousGeneralizedFileType);
+    defaultWalkThroughAction(generalizedFile, depth, generalizedFileType);
 
     if (generalizedFileType.indexOf("folder")>-1) {
         if (generalizedFileType === "intermidiate folder"){
             var generalizedFileIterator = generalizedFile.getFolders()
         } else if (generalizedFileType === "final folder"){
-            var generalizedFileIterator = generalizedFile.getFiles()
+            return generalizedFile
         } else {
             throw "Unknown generalizedFile directory type"
         }
         while (generalizedFileIterator.hasNext()){
             var childGeneralizedFile = generalizedFileIterator.next();
-            walkThrough(childGeneralizedFile, depth + 1, generalizedFileType, defaultWalkThroughAction, output_doc)
+            walkDeeper(childGeneralizedFile, generalizedFileType, depth + 1)
         }
     } else if (generalizedFileType == "file"){
-        Logger.log("I'm a file");
-        global_file_counter = global_file_counter + 1
-        if (global_file_counter > PROCESSED_FILES_LIMIT){
-            global_execution_flag = false
-        }
-
-        var doc = DocumentApp.openById(generalizedFile.getId())
-        var docBody = doc.getBody()
-
-        var output_body = output_doc.getBody()
-        var previous_elem = docBody.getChild(0)
-        var n = docBody.getNumChildren()
-
-        for (var i = 1; i < n; i++) {
-            var elem = docBody.getChild(i).copy()
-            appendElem(elem, output_body)
-            if (previous_elem.getText() == "ИННОПОЛИС") {
-                Logger.log("Matched INNO")
-                if (elem.getText() == "2018 г.") {
-                    Logger.log("Matched 2018!")
-                    break
-                }
-            }
-            previous_elem = elem
-
-        }
-
-        output_body.appendPageBreak
-
-
-        doc.saveAndClose()
-
+        throw "We've got too deep!"
     } else {
         throw "Unknown generalizedFileType value"
     }
 }
 
 
-function recoursevlyFindPreviousSiblingAndAppend(elem, body){
-    Logger.log(elem)
-    if (elem === null) {
-        return
+function extractTitlePageFromDoc(file) {
+    var doc = DocumentApp.openById(file.getId())
+    var docBody = doc.getBody()
+
+    var target_doc = DocumentApp.openById(TITLE_PAGES_FILE_ID)
+    var output_body = target_doc.getBody()
+
+    var previous_elem = docBody.getChild(0)
+    var n = docBody.getNumChildren()
+
+    for (var i = 1; i < n; i++) {
+        var elem = docBody.getChild(i).copy()
+        appendElem(elem, output_body)
+        if (previous_elem.getText() == "ИННОПОЛИС") {
+            Logger.log("Matched INNO")
+            if (elem.getText() == "2018 г.") {
+                Logger.log("Matched 2018!")
+                break
+            }
+        }
+        previous_elem = elem
+
     }
-    recoursevlyFindPreviousSiblingAndAppend(elem.getPreviousSibling(), body)
-    appendElem(elem, body)
+
+    output_body.appendPageBreak
+
+    doc.saveAndClose()
+    target_doc.saveAndClose()
 }
 
 
