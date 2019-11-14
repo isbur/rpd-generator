@@ -392,6 +392,19 @@ function getPrerequisites(values, inx, prerequisites, connect) {
     prerequisites.data = code == '09.03.01' ? prerequisites.bachelor : prerequisites.master;
   }
 
+  /**
+   * New behavior!
+   */
+
+   if (data.list == "" && prerequisites.bachelor == "" && prerequisites.master == ""){
+        prerequisites.thisIsASpecialCase = true
+        prerequisites.stringToWrite = ""
+   } else {
+        prerequisites.thisIsASpecialCase = false
+   }
+
+   /**********************/
+
   return prerequisites;
 }
 

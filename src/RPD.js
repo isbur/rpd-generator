@@ -157,16 +157,29 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{bad_mark}', cMark + ' - ' + (bMark - 1) + ' баллов');
   doc.replaceText('{lowest_mark}', dMark + ' - ' + (cMark - 1) + ' баллов');
 
+
   // TODO: behavior needs to be modified
   // 0. Сохранить поведение по умолчанию
   // 1. Ячейка N пустая – тогда надо подставить фразу "Содержание дисциплины..." и вставить содержимое ячеек O и P | уточнить насчёт фразы
+  //    - Судя по всему, надо просто вставить содержимое одной из ячеек, не вставляя дополнительных фраз?
   // 2. Все три ячейки – затирать шаблон | уточнить!
 
   // Old behavior
   // doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
 
-  // Пусть теперь вся строка формируется в getPrerequisites()
-  doc.replaceText('{prerequisites}', prerequisites.stringToWrite)
+  // C этим подходом есть такая проблема: а что, если я неправильно понял предыдущую версию скрипта, и что-то где-то сломается?
+  // Надо _неинвазивно_ прилепить новое поведение.
+  //    // Пусть теперь вся строка формируется в getPrerequisites()
+  //    doc.replaceText('{prerequisites}', prerequisites.stringToWrite)
+
+  // Что же в итоге
+  if(prerequisites.thisIsASpecialCase === true){
+      // My behvaior
+      doc.replaceText('{prerequisites}', prerequisites.stringToWrite);
+  } else {
+      // Old behavior
+      doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
+  }
 
   // проставляем данные заочки
   if (hasExtramural) {
