@@ -194,7 +194,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
       doc.replaceText('{prerequisites}', prerequisites.stringToWrite);
   } else {
       // Old behavior
-      doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
+      doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data + '.');
   }
 
   // проставляем данные заочки
