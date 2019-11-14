@@ -11,6 +11,7 @@
 var CONTROL_SPREADSHEET_ID = '1jtOo9-VtaE8D1B6UErDgdprW3SoeGo20ZDkarnubV2Q'
 var TITLE_PAGES_FILE_ID = '1GWrST6ZnD5HowJuDEhTC9mBaOsprhMLOEY_yb46Qy5E'
 var PROCESSED_FILES_LIMIT = 30
+var ATTEMPTS_TO_START_EXECUTION = 10
 
 var global_execution_flag = true;
 var global_next_folder = RPD_MAIN_FOLDER_ID
@@ -23,8 +24,23 @@ function launchTitlePagesFetching() {
     var control_spreadsheet = SpreadsheetApp.openById('1jtOo9-VtaE8D1B6UErDgdprW3SoeGo20ZDkarnubV2Q')
     var control_sheet = control_spreadsheet.getSheetByName("Control Variables")
     var freshStartFlag = control_sheet.getRange("B1").getValue()
-    Logger.log(freshStartFlag)
+
+
+    var count = 0
+    while( control_sheet.getRange("B4").getValue() == 1) {   // Flag that shows that some instance of script is still working
+        Logger.log(count)
+        Utilities.sleep(1000)
+        count = count + 1
+        if (count > ATTEMPTS_TO_START_EXECUTION) {
+            throw "Exceeded maximum amount of attempts to launch script! Maybe something is blocking it."
+        }
+    }
+    control_sheet.getRange("B4").setValue(1)
     if (freshStartFlag == 1) {
+        ScriptApp.newTrigger('launchTitlePagesFetching')
+            .forSpreadsheet(control_spreadsheet)
+            .onChange()
+            .create()
         control_sheet.getRange("B1").setValue(0)    // Fresh start flag
         control_sheet.getRange("B2").setValue(1)    // Next folder number
         var start_folder = walkDeeper(RPD_folder, "intermidiate folder")
@@ -37,11 +53,16 @@ function launchTitlePagesFetching() {
             var next_folder_number = control_sheet.getRange("B2").getValue()
             var folder_sheet = control_spreadsheet.getSheetByName("Folders")
             var next_folder_name = folder_sheet.getRange(2+next_folder_number, 1).getValue()
+            if (next_folder_name == "") {
+                return
+            }
             global_next_folder = RPD_folder.getFoldersByName(next_folder_name).next()
             var start_folder = walkDeeper(global_next_folder, "intermidiate folder", 0)
             start_point = start_folder.getFiles()
+            control_sheet.getRange("B2").setValue(next_folder_number + 1)
         }
     }
+
 
     var continuationToken = walkThroughDirectory(start_point)
 
@@ -88,7 +109,7 @@ function walkDeeper(
         }
         while (generalizedFileIterator.hasNext()){
             var childGeneralizedFile = generalizedFileIterator.next();
-            walkDeeper(childGeneralizedFile, generalizedFileType, depth + 1)
+            return walkDeeper(childGeneralizedFile, generalizedFileType, depth + 1)
         }
     } else if (generalizedFileType == "file"){
         throw "We've got too deep!"

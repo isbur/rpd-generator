@@ -7,15 +7,18 @@
  * @param parameterSpreadsheet.competencies
  * @see getRPDCompetencies
  * @see helpers.js
+ * @param parameterSpreadsheet.prerequisitesValues
+ * @see getPrerequisitesValues
+ * @see helpers.js
  */
 function createRPD() {
-	
+
   // папка контентных шаблонов
   var templatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
   // имена файлов контентных шаблонов
   var templateNames = getTemplateNames(templatesFolder);
 
-  // файл "Выгрузка  дисциплин из УП"
+  // файл "Выгрузка дисциплин из УП"
   var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
   // значения таблицы "Выгрузка  дисциплин из УП"
   var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
@@ -33,6 +36,7 @@ function createRPD() {
 
 
   // берем инфу о соответствии названий дисциплин и id контентных шаблонов
+  // работает с каким-то своим файлом
   var connectValues = getConnectValues();
 
   // берем данные о дисциплинах из файла "Литература для дисциплин"
@@ -77,6 +81,9 @@ function createRPD() {
 }
 
 
+/**
+ *
+ */
 function processDoc(doc, values, competencies, extraData, variations, prerequisites, profs, desc, id) {
   var nameEng = toStr(values[9]);
   var zExamInfo = toStr(values[30]);
@@ -149,7 +156,17 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{good_mark}', bMark + ' - ' + (aMark - 1) + ' баллов');
   doc.replaceText('{bad_mark}', cMark + ' - ' + (bMark - 1) + ' баллов');
   doc.replaceText('{lowest_mark}', dMark + ' - ' + (cMark - 1) + ' баллов');
-  doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
+
+  // TODO: behavior needs to be modified
+  // 0. Сохранить поведение по умолчанию
+  // 1. Ячейка N пустая – тогда надо подставить фразу "Содержание дисциплины..." и вставить содержимое ячеек O и P | уточнить насчёт фразы
+  // 2. Все три ячейки – затирать шаблон | уточнить!
+
+  // Old behavior
+  // doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
+
+  // Пусть теперь вся строка формируется в getPrerequisites()
+  doc.replaceText('{prerequisites}', prerequisites.stringToWrite)
 
   // проставляем данные заочки
   if (hasExtramural) {
