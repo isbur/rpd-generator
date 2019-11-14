@@ -34,12 +34,21 @@ function createTemplates() {
    *
    ***************************************************************************************/
 
+   
    /**
-    * New behavior
+    * New behavior ***********************************************************************
     */
     var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
     var currentTime = new Date().toLocaleString()
     var newTemplatesFolder = templatesMainFolder.createFolder("launch " + currentTime)
+
+    // And save new id to control spreadsheet
+    var controlSpreadsheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID)
+    var controlSheet = controlSpreadsheet.getSheetByName("Content Templates Folder")
+    controlSheet.getRange("A1").setValue(newTemplatesFolder.getId())
+
+    /*********************************************************************************** */
+
 
   // связываем id дисциплины и индекс строки файла "Литература для дисциплин"
   var booksRowInxs = getBooksRowInxs(booksSheet);

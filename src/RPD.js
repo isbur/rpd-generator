@@ -13,8 +13,18 @@
  */
 function createRPD() {
 
-  // папка контентных шаблонов
-  var templatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
+    /**
+     * папка контентных шаблонов
+     * теперь определяется по-новgitому (динамически подгружается из управляющей таблицы, а не захардкожена)
+     */
+    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Content Templates Folder")
+    var templatesFolderId = controlSheet.getRange("A1").getValue()
+    if (templatesFolderId == ""){
+        throw "No templatesFolderId found!"
+    }
+    var templatesFolder = DriveApp.getFolderById(templatesFolderId);
+    /****************************************************************************************************** */
+
   // имена файлов контентных шаблонов
   var templateNames = getTemplateNames(templatesFolder);
 
