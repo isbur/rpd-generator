@@ -116,7 +116,6 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{course_description_2}', desc.desc2);
   doc.replaceText('{subject_area}', desc.subject);
   doc.replaceText('{course_objectives}', desc.objects);
-  doc.replaceText('{z_year}', values[32]);
   doc.replaceText('{main_books}', prerequisites.mainBooks);
   doc.replaceText('{extra_books}', prerequisites.extraBooks);
   doc.replaceText('{discipline_code}', disciplineCode);
@@ -191,6 +190,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
     var zSelf = Number(values[23]);
     var zContactHours = zLectures + zPractics;
 
+    doc.replaceText('{z_year}', values[32]);
     doc.replaceText('{z_exam}', getSemesters(values[18], true));
     doc.replaceText('{z_l_in_zet}', zLengthInZet);
     doc.replaceText('{z_l_in_ach}', zLengthInAch);
@@ -205,6 +205,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
     doc.replaceText('{z_l_in_ach_with_words}', zLengthInAch + getAcademName(zLengthInAch));
     doc.replaceText('{z_contact_hours_with_words}', zContactHours + getAcademName(zContactHours));
   } else {
+    doc.replaceText('{z_year}', '');
     doc.replaceText('{z_exam}', '-');
     doc.replaceText('{z_l_in_zet}', '-');
     doc.replaceText('{z_l_in_ach}', '-');
