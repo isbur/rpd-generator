@@ -185,6 +185,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   // Что же в итоге
   if(prerequisites.thisIsASpecialCase === true){
       // My behvaior
+      Logger.log(prerequisites.stringToWrite)
       doc.replaceText('{prerequisites}', prerequisites.stringToWrite);
   } else {
       // Old behavior
