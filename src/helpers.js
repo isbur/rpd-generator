@@ -396,7 +396,10 @@ function getPrerequisites(values, inx, prerequisites, connect) {
    * New behavior!
    */
 
-   if (prerequisites.list == "" && prerequisites.bachelor == "" && prerequisites.master == ""){
+   if (
+       prerequisites.list == "" && prerequisites.bachelor == "" && prerequisites.master == "" ||
+       prerequisites.data == "" && prerequisites.bachelor == "" && prerequisites.master == ""
+    ){
         prerequisites.thisIsASpecialCase = true
         prerequisites.stringToWrite = ""
    } else {
