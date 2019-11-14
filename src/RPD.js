@@ -337,8 +337,21 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   }
 }
 
+
+/**
+ * Открывает папку с результатами выгрузки,
+ * затем проследует в папку с годом, затем, видимо, идут код дисциплины и название...
+ * самой дисциплины? группы контентных шаблонов?
+ * Если надо, то ещё и создаёт всё по дороге.
+ *
+ * Кажется, если хочется сделать безопасную копию, в которой можно развлекаться,
+ * достаточно просто указать альтернативную папку с итоговыми результатами
+ * @param {*} year
+ * @param {*} dir1
+ * @param {*} dir2
+ */
 function getFolder(year, dir1, dir2) {
-  var rpdFolderId = '1qzgByLsm73nClqWiuYTM2dbkuDQvFhz5';
+  var rpdFolderId = RPD_MAIN_FOLDER_ID;
   var rpdFolder = DriveApp.getFolderById(rpdFolderId);
   var yearFolder = rpdFolder.getFoldersByName(year);
 
