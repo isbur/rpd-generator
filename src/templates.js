@@ -6,6 +6,11 @@
  * Полагаю, проблема с DriveApp в том, что происходит удаление и генерирование заново всех файлов...
  * Workaround – создавать папки сызнова у пользователя, который запускает скрипт?
  * Ну и тогда неплохо бы иметь что-то типа CleanUp, который позволит в конце сессии подчистить всё нагенерированное.
+ * @see https://developers.google.com/apps-script/reference/drive/file.html#setTrashed(Boolean) - ещё один пруф
+ * > Sets whether the File is in the trash of the user's Drive.
+ * > ***Only the owner may trash the File.***
+ * > The default for new Files is false.
+ * Кстати, в таком случае мой тест ничего бы не дал – я ведь был бы хозяином своего файла.
  */
 function createTemplates() {
   // файл-шаблон РПД
@@ -19,16 +24,22 @@ function createTemplates() {
 
 
   /**
-   * WARNING *************************************************************************
-   */
-  // папка  с готовыми контентными шаблонами
-  var newTemplatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
+   * Old behavior *************************************************************************
+   *
+   * // папка  с готовыми контентными шаблонами
+   * var newTemplatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
+   *
+   * // очищаем папку от старых файлов
+   * deleteFiles(newTemplatesFolder);
+   *
+   ***************************************************************************************/
 
-  // очищаем папку от старых файлов
-  deleteFiles(newTemplatesFolder);
-
-  /***********************************************************************************/
-
+   /**
+    * New behavior
+    */
+    var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
+    var currentTime = new Date().toLocaleString()
+    var newTemplatesFolder = templatesMainFolder.createFolder("launch " + currentTime)
 
   // связываем id дисциплины и индекс строки файла "Литература для дисциплин"
   var booksRowInxs = getBooksRowInxs(booksSheet);
