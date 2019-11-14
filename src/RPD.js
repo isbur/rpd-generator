@@ -25,6 +25,11 @@ function createRPD() {
     var templatesFolder = DriveApp.getFolderById(templatesFolderId);
     /****************************************************************************************************** */
 
+
+    /** RPD folder */
+    var RPD_main_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
+    var RPD_work_directory = createNewFolderInside(RPD_main_folder)
+
   // имена файлов контентных шаблонов
   var templateNames = getTemplateNames(templatesFolder);
 
@@ -76,7 +81,7 @@ function createRPD() {
 
         if (templateName) {
           files = templatesFolder.getFilesByName(templateName);
-          doc = files.next().makeCopy(docName, getFolder(year, row[1], row[3]));
+          doc = files.next().makeCopy(docName, getFolder(RPD_work_directory, year, row[1], row[3]));
           docBody = DocumentApp.openById(doc.getId()).getBody();
           // получаем данные о пререквизитах
           prerequisites = getPrerequisites(values, inx, prerequisitesValues[id], connectValues);
@@ -357,13 +362,19 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
  *
  * Кажется, если хочется сделать безопасную копию, в которой можно развлекаться,
  * достаточно просто указать альтернативную папку с итоговыми результатами
+ *
+ * Похоже, эта функция используется только в данном файле. Мб стоит сделать класс и оформить функцию как приватный метод.
+ *
+ * @param rpdFolderId
  * @param {*} year
  * @param {*} dir1
  * @param {*} dir2
  */
-function getFolder(year, dir1, dir2) {
-  var rpdFolderId = RPD_MAIN_FOLDER_ID;
-  var rpdFolder = DriveApp.getFolderById(rpdFolderId);
+function getFolder(rpdFolder, year, dir1, dir2) {
+    /** Old behavior */
+    // var rpdFolderId = RPD_MAIN_FOLDER_ID;
+    // var rpdFolder = DriveApp.getFolderById(rpdFolderId)
+
   var yearFolder = rpdFolder.getFoldersByName(year);
 
   var folder1 = yearFolder.hasNext() ? yearFolder.next() : rpdFolder.createFolder(year);

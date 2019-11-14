@@ -34,13 +34,12 @@ function createTemplates() {
    *
    ***************************************************************************************/
 
-   
+
    /**
     * New behavior ***********************************************************************
     */
     var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
-    var currentTime = new Date().toLocaleString()
-    var newTemplatesFolder = templatesMainFolder.createFolder("launch " + currentTime)
+    var newTemplatesFolder = createNewFolderInside(templatesMainFolder)
 
     // And save new id to control spreadsheet
     var controlSpreadsheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID)
