@@ -57,10 +57,16 @@ function createRPDManually(){
  */
 function launchGenerationProcess() {
 
+    var disciplinesSheet = new DisciplinesSheet
+
     var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
     var templatesFolder = getNewTemplatesFolder()
     var RPD_folder = getNewRPD_folder()
-    controlSheet.getRange("A2:C2").setValues([-1, templatesFolder.getId(), RPD_folder.getId()])
+    var milestone = disciplinesSheet.getNumberOfItems() - 1 // Milestone is the index of last row
+    // var milestone = 0
+    controlSheet.getRange("A2:D2").setValues([  // Strange... I've already changed these strings...
+        [-1, templatesFolder.getId(), RPD_folder.getId(), milestone]
+    ])
 
     ScriptApp.newTrigger("generationProcessStep")
         .timeBased()
@@ -105,14 +111,25 @@ function generationProcessStep() {
     Logger.log(RPD_folder.getId())
 
     var contentTemplateId = DisciplinesSheet.getContentTemlpateId(newDisciplineIndex)
+    Logger.log("ContentTemplateId")
+    Logger.log(contentTemplateId)
     if (this.check_whether_content_template_was_already_generated(contentTemplateId) === false) {
         Logger.log("Creating new content template...")
-        Logger.log(contentTemplateId)
         createTemplates(templatesFolder, [contentTemplateId])
     }
     createRPD(RPD_folder, [newDisciplineIndex])
 
-
+    var milestone = RPDcontrolSheet.getMilestone()
+    if(newDisciplineIndex == milestone) {
+        Logger.log("reached milestone...")
+        var triggers = ScriptApp.getUserTriggers(SpreadsheetApp.getActiveSpreadsheet())
+        triggers.forEach(
+            function (trigger) {
+                ScriptApp.deleteTrigger(trigger)
+            }
+        )
+    }
+    RPDcontrolSheet.updateLastDisciplineIndex()
 }
 
 
@@ -126,6 +143,10 @@ function RPDcontrolSheet () {
     /**
      *
      */
+    this.getMilestone = function() {
+        return this.getDatumFromCell("D2")
+    }
+
     this.getLastDisciplineIndex = function () {
         var lastDisciplineIndex = this.getDatumFromCell("A2")
         if (lastDisciplineIndex === "") {
@@ -134,6 +155,10 @@ function RPDcontrolSheet () {
             lastDisciplineIndex = parseInt(lastDisciplineIndex)
         }
         return lastDisciplineIndex
+    }
+
+    this.updateLastDisciplineIndex = function () {
+        this.setDatumToCell("A2", parseInt(this.getDatumFromCell("A2")) + 1 )
     }
 
     this.getTemplatesFolder = function () {

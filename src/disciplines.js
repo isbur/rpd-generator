@@ -3,6 +3,9 @@ function DisciplinesSheet() {
     this.getContentTemlpateId = function(rowIndex) {
         return parseInt( disciplinesSheet.getRange(rowIndex+2,36).getValue() ) // must be content template id
     }
+    this.getNumberOfItems = function() {
+        return disciplinesSheet.getLastRow() - 1
+    }
 }
 
 /**
