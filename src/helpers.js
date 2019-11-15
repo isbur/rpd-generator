@@ -217,8 +217,7 @@ function getPoints(number) {
 }
 
 function getTemplateNames() {
-  var templatesFolderId = '19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o';
-  var templatesFolder = DriveApp.getFolderById(templatesFolderId);
+  var templatesFolder = getCurrentTemplatesFolder()
   var files = templatesFolder.getFiles();
   var names = [];
 

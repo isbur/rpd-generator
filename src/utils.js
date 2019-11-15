@@ -192,8 +192,23 @@ function getConjunction(arr1, arr2) {
 /**
  * Создаёт новую папку в указанной по правилу "launch" + текущее время
  * @param {Folder} folder Внимательно! Нужна папка, а не id
+ * @returns {Folder}
  */
 function createNewFolderInside(folder){
     var currentTime = new Date().toLocaleString()
     return folder.createFolder("launch " + currentTime)
+}
+
+
+/**
+ * @returns {Folder} folder, not id
+ */
+function getCurrentTemplatesFolder(){
+    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Content Templates Folder")
+    var templatesFolderId = controlSheet.getRange("A1").getValue()
+    if (templatesFolderId == ""){
+        throw "No templatesFolderId found!"
+    }
+    var templatesFolder = DriveApp.getFolderById(templatesFolderId);
+    return templatesFolder
 }

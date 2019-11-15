@@ -17,12 +17,7 @@ function createRPD() {
      * папка контентных шаблонов
      * теперь определяется по-новому (динамически подгружается из управляющей таблицы, а не захардкожена)
      */
-    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Content Templates Folder")
-    var templatesFolderId = controlSheet.getRange("A1").getValue()
-    if (templatesFolderId == ""){
-        throw "No templatesFolderId found!"
-    }
-    var templatesFolder = DriveApp.getFolderById(templatesFolderId);
+    var templatesFolder = getCurrentTemplatesFolder()
     /****************************************************************************************************** */
 
 
