@@ -1,10 +1,26 @@
 function createRPDManually(){
-
+    // файл "Выгрузка дисциплин из УП"
+    var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+    // значения таблицы "Выгрузка  дисциплин из УП"
+    var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
+    var requiredDisciplineSheetIndices = []
+    values.forEach(
+        function(row, inx) {
+            if (toStr(row[33]) === '1') {
+                requiredDisciplineSheetIndices.push(inx)
+            }
+        }
+    )
+    createRPDWith(requiredDisciplineSheetIndices)
 }
 
 
 /**
- * Создание файлов РПД. В действительности функция не принимает никаких аргументов, а инициализирует переменные с аналогичными названиями.
+ * Создание файлов РПД.
+ *
+ * @param requiredIds - placeholder
+ *
+ * Fake parameters:
  * @param templatesFolder - Папка контентных шаблонов.
  * @param disciplineSheet - Файл "Выгрузка  дисциплин из УП".
  * @param disciplineSheet.values[].row.year
