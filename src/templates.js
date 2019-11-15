@@ -61,11 +61,11 @@ function createTemplates(newTemplatesFolder, requiredIds) {
 
   // проходим по всем файлам контента дисциплин
   while (files.hasNext()) {
-    Logger.log("inside while")
+    //Logger.log("inside while")
     file = files.next();
     name = file.getName().split('.');
     id = name[0];
-    Logger.log(id)
+    //Logger.log(id)
 
     // для каждой дисциплины из списка искомых создаем контентный шаблон
     if (ids.indexOf(id) !== -1) {

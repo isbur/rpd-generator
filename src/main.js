@@ -88,7 +88,9 @@ function generationProcessStep() {
     DisciplinesSheet = new DisciplinesSheet()
 
     this.check_whether_content_template_was_already_generated = function(id){
-        var fileIterator = templatesFolder.searchFiles("title contains \'"+id+"\'")
+        var search_term = "title contains 'CD_"+id+"'"  // contains performs prefix search (as stated in)
+        Logger.log(search_term)
+        var fileIterator = templatesFolder.searchFiles(search_term)
         return fileIterator.hasNext()
     }
 
