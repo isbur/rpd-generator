@@ -86,7 +86,11 @@ function generationProcessStep() {
 
     RPDcontrolSheet = new RPDcontrolSheet()
     DisciplinesSheet = new DisciplinesSheet()
-
+    
+    this.check_whether_content_template_was_already_generated = function(id){
+        var fileIterator = templatesFolder.searchFiles("title contains \'"+id+"\'")
+        return fileIterator.hasNext()
+    }
 
     var lastDisciplineIndex = RPDcontrolSheet.getLastDisciplineIndex()
     var newDisciplineIndex = lastDisciplineIndex + 1
@@ -95,15 +99,12 @@ function generationProcessStep() {
     var RPD_folder = RPDcontrolSheet.getRPD_folder()
 
     var contentTemplateId = DisciplinesSheet.getContentTemlpateId(newDisciplineIndex)
-    if (check_whether_content_template_was_already_generated(contentTemplateId) === false) {
+    if (this.check_whether_content_template_was_already_generated(contentTemplateId) === false) {
         createTemplates(templatesFolder, contentTemplateId)
     }
     createRPD(RPD_folder, lastDisciplineIndex + 1)
 
-    this.check_whether_content_template_was_already_generated = function(){
-        var fileIterator = templatesFolder.searchFiles(contentTemplateId)
-        return fileIterator.hasNext()
-    }
+    
 }
 
 
@@ -118,8 +119,8 @@ function RPDcontrolSheet () {
      *
      */
     this.getLastDisciplineIndex = function () {
-        var lastDisciplineIndex = getDatumFromCell("A2")
-        if (lastDisciplineIndex == "") {
+        var lastDisciplineIndex = this.getDatumFromCell("A2")
+        if (lastDisciplineIndex === "") {
             throw "lastDisciplineIndex cell is empty!"
         } else {
             lastDisciplineIndex = parseInt(lastDisciplineIndex) + 1
@@ -128,19 +129,19 @@ function RPDcontrolSheet () {
     }
 
     this.getTemplatesFolder = function () {
-        return getFolderById(getDatumFromCell("B2"))
+        return this.getFolderById(this.getDatumFromCell("B2"))
     }
 
     this.setTemplatesFolder = function (value) {
-        setDatumToCell("B2", value)
+        this.setDatumToCell("B2", value)
     }
 
     this.getRPD_folder = function () {
-        return getFolderById(getDatumFromCell("C2"))
+        return this.getFolderById(this.getDatumFromCell("C2"))
     }
 
     this.setRPD_folder = function (value) {
-        setDatumToCell("C2", value)
+        this.setDatumToCell("C2", value)
     }
 
     this.getDatumFromCell = function (address){
@@ -152,7 +153,7 @@ function RPDcontrolSheet () {
     }
 
     this.getFolderById = function (folderId){
-        return DriveApp.openById(folderId)
+        return DriveApp.getFolderById(folderId)
     }
 }
 

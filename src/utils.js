@@ -212,3 +212,17 @@ function getCurrentTemplatesFolder(){
     var templatesFolder = DriveApp.getFolderById(templatesFolderId);
     return templatesFolder
 }
+
+
+/**
+ *
+ */
+function getNewTemplatesFolder(){
+    var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
+    return newTemplatesFolder = createNewFolderInside(templatesMainFolder)
+}
+
+function getNewRPD_folder() {
+    var RPD_main_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
+    return RPD_work_directory = createNewFolderInside(RPD_main_folder)
+}
