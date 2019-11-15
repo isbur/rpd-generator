@@ -18,7 +18,7 @@ function onOpen() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   ss.addMenu('Скрипты', [
     {name: 'Сделать выгрузку', functionName: 'getDisciplines'},
-    {name: 'Создать контентные шаблоны', functionName: 'createTemplates'},
+    {name: 'Создать контентные шаблоны', functionName: 'createTemplatesManually'},
     {name: 'Создать РПД по столбцу "Создать РПД"', functionName: 'createRPDManually'},
     {name: 'Создать все РПД (потребуется много времени на выполнение)', functionName: 'launchGenerationProcess'}
   ]);
@@ -63,7 +63,7 @@ function launchGenerationProcess() {
  *
  *   * (optional) check whether another script is still working
  *
- *   // 2. Find first empty cell
+ *   ****
  *
  *   // 3. Use it as an index to generate both template and RPD
  *
@@ -83,6 +83,8 @@ function generationProcessStep() {
         lastDisciplineIndex = parseInt(lastDisciplineIndex) + 1
     }
 
+    
+    creatTemplateWith(requiredId)
     createRPDWith(lastDisciplineIndex)
 
 }

@@ -1,4 +1,24 @@
+function createTemplatesManually(){
 
+    /**
+     * Set new content templates folder and make it usable by createRPD()
+     */
+    var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
+    var newTemplatesFolder = createNewFolderInside(templatesMainFolder)
+
+    // And save new id to control spreadsheet
+    var controlSpreadsheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID)
+    var controlSheet = controlSpreadsheet.getSheetByName("Content Templates Folder")
+    controlSheet.getRange("A1").setValue(newTemplatesFolder.getId())
+
+    /**
+     * get content template ids from disciplines spreadsheet
+     */
+    requiredIds = getRpdIds()
+
+
+    createTemplates(newTemplatesFolder, requiredIds)
+}
 
 
 /**
@@ -15,7 +35,7 @@
  * > The default for new Files is false.
  * Кстати, в таком случае мой тест ничего бы не дал – я ведь был бы хозяином своего файла.
  */
-function createTemplates() {
+function createTemplates(newTemplatesFolder, requiredIds) {
   // файл-шаблон РПД
   var template = DriveApp.getFileById('10BziNwk_IniVfaTWQ8oeEW-6g7TEbQLehR5i7TD3_z4');
 
@@ -25,38 +45,11 @@ function createTemplates() {
   // файл "Литература для дисциплин"
   var booksSheet = SpreadsheetApp.openById('1qms0QwsDHIHC7HaKZVMO7WFklin0sXkU_HCmUhuXnGo').getSheetByName('Sheet1');
 
-
-  /**
-   * Old behavior *************************************************************************
-   *
-   * // папка  с готовыми контентными шаблонами
-   * var newTemplatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
-   *
-   * // очищаем папку от старых файлов
-   * deleteFiles(newTemplatesFolder);
-   *
-   ***************************************************************************************/
-
-
-   /**
-    * New behavior ***********************************************************************
-    */
-    var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
-    var newTemplatesFolder = createNewFolderInside(templatesMainFolder)
-
-    // And save new id to control spreadsheet
-    var controlSpreadsheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID)
-    var controlSheet = controlSpreadsheet.getSheetByName("Content Templates Folder")
-    controlSheet.getRange("A1").setValue(newTemplatesFolder.getId())
-
-    /*********************************************************************************** */
-
-
   // связываем id дисциплины и индекс строки файла "Литература для дисциплин"
   var booksRowInxs = getBooksRowInxs(booksSheet);
 
-  // собираем id искомых дисциплин
-  var ids = getRpdIds();
+  // собираем id искомых дисциплин | – когда-то собирали...
+  var ids = requiredIds;
 
   var file, spreadsheet, name, id, newDocName, newDoc, docBody, partsData, rowInx;
 
