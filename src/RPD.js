@@ -1,3 +1,8 @@
+function createRPDManually(){
+
+}
+
+
 /**
  * Создание файлов РПД. В действительности функция не принимает никаких аргументов, а инициализирует переменные с аналогичными названиями.
  * @param templatesFolder - Папка контентных шаблонов.
@@ -11,7 +16,7 @@
  * @see getPrerequisitesValues
  * @see helpers.js
  */
-function createRPD() {
+function createRPDWith(requiredIds) {
 
     /**
      * папка контентных шаблонов
@@ -59,13 +64,22 @@ function createRPD() {
   var connect, id, name, docName, templateName;
   var files, year, doc, docBody, prerequisites;
 
+  processDocsWith(requiredIds)
+}
 
+
+function processDocsWith(requiredIds) {
   // пробегаемся по каждой строке файла всех дисциплин
   values.forEach(function(row, inx) {
-    // работаем с дисциплинами cо значением 1 в столбце "Создать РПД"
-    if (toStr(row[33]) === '1') {
-      id = row[35];
 
+    /**
+     *
+     *
+     * // работаем с дисциплинами cо значением 1 в столбце "Создать РПД"
+     * if (toStr(row[33]) === '1') {
+     *   id = row[35];
+     */
+    if(requiredIds.I)
       // если для дисциплины указан id контентного шаблона, то создаем РПД
       if (id) {
         name = !isEmpty(row[9]) ? row[9] : row[8];
