@@ -1,7 +1,8 @@
 /**
  * Создание файлов РПД.
  *
- * @param requiredDisciplineSheetIndices - placeholder
+ * @param {Folder} RPD_work_directory
+ * @param {Integer[]} requiredDisciplineSheetIndices - be carefull!
  *
  * Fake parameters:
  * @param templatesFolder - Папка контентных шаблонов.

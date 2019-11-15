@@ -60,7 +60,7 @@ function launchGenerationProcess() {
     var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
     var templatesFolder = getNewTemplatesFolder()
     var RPD_folder = getNewRPD_folder()
-    controlSheet.getRange("A2:C2").setValues([0, templatesFolder.getId(), RPD_folder.getId()])
+    controlSheet.getRange("A2:C2").setValues([-1, templatesFolder.getId(), RPD_folder.getId()])
 
     ScriptApp.newTrigger("generationProcessStep")
         .timeBased()
@@ -86,7 +86,7 @@ function generationProcessStep() {
 
     RPDcontrolSheet = new RPDcontrolSheet()
     DisciplinesSheet = new DisciplinesSheet()
-    
+
     this.check_whether_content_template_was_already_generated = function(id){
         var fileIterator = templatesFolder.searchFiles("title contains \'"+id+"\'")
         return fileIterator.hasNext()
@@ -94,17 +94,23 @@ function generationProcessStep() {
 
     var lastDisciplineIndex = RPDcontrolSheet.getLastDisciplineIndex()
     var newDisciplineIndex = lastDisciplineIndex + 1
+    Logger.log("Processing next discipline")
+    Logger.log(newDisciplineIndex)
 
     var templatesFolder = RPDcontrolSheet.getTemplatesFolder()
     var RPD_folder = RPDcontrolSheet.getRPD_folder()
+    Logger.log(templatesFolder.getId())
+    Logger.log(RPD_folder.getId())
 
     var contentTemplateId = DisciplinesSheet.getContentTemlpateId(newDisciplineIndex)
     if (this.check_whether_content_template_was_already_generated(contentTemplateId) === false) {
-        createTemplates(templatesFolder, contentTemplateId)
+        Logger.log("Creating new content template...")
+        Logger.log(contentTemplateId)
+        createTemplates(templatesFolder, [contentTemplateId])
     }
-    createRPD(RPD_folder, lastDisciplineIndex + 1)
+    createRPD(RPD_folder, [newDisciplineIndex])
 
-    
+
 }
 
 
@@ -123,7 +129,7 @@ function RPDcontrolSheet () {
         if (lastDisciplineIndex === "") {
             throw "lastDisciplineIndex cell is empty!"
         } else {
-            lastDisciplineIndex = parseInt(lastDisciplineIndex) + 1
+            lastDisciplineIndex = parseInt(lastDisciplineIndex)
         }
         return lastDisciplineIndex
     }

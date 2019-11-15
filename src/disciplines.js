@@ -1,7 +1,7 @@
 function DisciplinesSheet() {
     var disciplinesSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
     this.getContentTemlpateId = function(rowIndex) {
-        return parseInt( disciplinesSheet.getRange(rowIndex+1,36) ) // must be content template id
+        return parseInt( disciplinesSheet.getRange(rowIndex+2,36).getValue() ) // must be content template id
     }
 }
 
