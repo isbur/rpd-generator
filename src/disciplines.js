@@ -1,3 +1,10 @@
+function DisciplinesSheet() {
+    var disciplinesSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+    this.getContentTemlpateId = function(rowIndex) {
+        return parseInt( disciplinesSheet.getRange(rowIndex+1,36) ) // must be content template id
+    }
+}
+
 /**
  * Cоздание списка дисциплин из УП
  * Хотя непонятно, чего я ожидал, производя поиск здесь - ошибка-то DriveApp вываливается при запуске генерации контентных файлов... Facepalm.

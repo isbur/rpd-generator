@@ -15,7 +15,7 @@
  * @see getPrerequisitesValues
  * @see helpers.js
  */
-function createRPDWith(requiredDisciplineSheetIndices) {
+function createRPD(RPD_work_directory, requiredDisciplineSheetIndices) {
 
     /**
      * папка контентных шаблонов
@@ -25,9 +25,7 @@ function createRPDWith(requiredDisciplineSheetIndices) {
     /****************************************************************************************************** */
 
 
-    /** RPD folder */
-    var RPD_main_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
-    var RPD_work_directory = createNewFolderInside(RPD_main_folder)
+
 
     // имена файлов контентных шаблонов
     var templateNames = getTemplateNames(templatesFolder);
