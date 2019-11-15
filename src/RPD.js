@@ -1,24 +1,7 @@
-function createRPDManually(){
-    // файл "Выгрузка дисциплин из УП"
-    var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
-    // значения таблицы "Выгрузка  дисциплин из УП"
-    var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
-    var requiredDisciplineSheetIndices = []
-    values.forEach(
-        function(row, inx) {
-            if (toStr(row[33]) === '1') {
-                requiredDisciplineSheetIndices.push(inx)
-            }
-        }
-    )
-    createRPDWith(requiredDisciplineSheetIndices)
-}
-
-
 /**
  * Создание файлов РПД.
  *
- * @param requiredIds - placeholder
+ * @param requiredDisciplineSheetIndices - placeholder
  *
  * Fake parameters:
  * @param templatesFolder - Папка контентных шаблонов.
@@ -32,7 +15,7 @@ function createRPDManually(){
  * @see getPrerequisitesValues
  * @see helpers.js
  */
-function createRPDWith(requiredIds) {
+function createRPDWith(requiredDisciplineSheetIndices) {
 
     /**
      * папка контентных шаблонов
@@ -46,78 +29,68 @@ function createRPDWith(requiredIds) {
     var RPD_main_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
     var RPD_work_directory = createNewFolderInside(RPD_main_folder)
 
-  // имена файлов контентных шаблонов
-  var templateNames = getTemplateNames(templatesFolder);
+    // имена файлов контентных шаблонов
+    var templateNames = getTemplateNames(templatesFolder);
 
-  // файл "Выгрузка дисциплин из УП"
-  var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
-  // значения таблицы "Выгрузка  дисциплин из УП"
-  var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
+    // файл "Выгрузка дисциплин из УП"
+    var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+    // значения таблицы "Выгрузка  дисциплин из УП"
+    var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
 
-  // файл "Параметры для создания РПД"
-  var parameterSpreadsheet = SpreadsheetApp.openById('1qO5RDdykeb0KjvlXeqNqNt3ZRAPlCTo0j0ClrXYkec0');
-  // получаем данные компетенций
-  var competencies = getRPDCompetencies(parameterSpreadsheet);
-  // берем данные из файла "Параметры для создания РПД"
-  var variations = getVariations(parameterSpreadsheet);
-  // собираем данные о пререквизитах
-  var prerequisitesValues = getPrerequisitesValues(parameterSpreadsheet);
-  // получаем инфу о профессиональной области дисциплин
-  var profs = getProfs(parameterSpreadsheet);
-
-
-  // берем инфу о соответствии названий дисциплин и id контентных шаблонов
-  // работает с каким-то своим файлом
-  var connectValues = getConnectValues();
-
-  // берем данные о дисциплинах из файла "Литература для дисциплин"
-  var extraData = getExtraData();
-
-  // дополнительные данные о дисциплинах
-  var description = getDescription();
+    // файл "Параметры для создания РПД"
+    var parameterSpreadsheet = SpreadsheetApp.openById('1qO5RDdykeb0KjvlXeqNqNt3ZRAPlCTo0j0ClrXYkec0');
+    // получаем данные компетенций
+    var competencies = getRPDCompetencies(parameterSpreadsheet);
+    // берем данные из файла "Параметры для создания РПД"
+    var variations = getVariations(parameterSpreadsheet);
+    // собираем данные о пререквизитах
+    var prerequisitesValues = getPrerequisitesValues(parameterSpreadsheet);
+    // получаем инфу о профессиональной области дисциплин
+    var profs = getProfs(parameterSpreadsheet);
 
 
-  var connect, id, name, docName, templateName;
-  var files, year, doc, docBody, prerequisites;
+    // берем инфу о соответствии названий дисциплин и id контентных шаблонов
+    // работает с каким-то своим файлом
+    var connectValues = getConnectValues();
 
-  processDocsWith(requiredIds)
-}
+    // берем данные о дисциплинах из файла "Литература для дисциплин"
+    var extraData = getExtraData();
+
+    // дополнительные данные о дисциплинах
+    var description = getDescription();
 
 
-function processDocsWith(requiredIds) {
-  // пробегаемся по каждой строке файла всех дисциплин
-  values.forEach(function(row, inx) {
+    var connect, id, name, docName, templateName;
+    var files, year, doc, docBody, prerequisites;
 
-    /**
-     *
-     *
-     * // работаем с дисциплинами cо значением 1 в столбце "Создать РПД"
-     * if (toStr(row[33]) === '1') {
-     *   id = row[35];
-     */
-    if(requiredIds.I)
-      // если для дисциплины указан id контентного шаблона, то создаем РПД
-      if (id) {
-        name = !isEmpty(row[9]) ? row[9] : row[8];
-        docName = row[0] + '_' + name;
-        year = row[0].split('.')[0];
-        // находим имя соответствующего дисциплине контентного шаблона
-        templateName = getTemplateName(templateNames, id);
+    requiredDisciplineSheetIndices.forEach(
+        function(rowNumber){
 
-        if (templateName) {
-          files = templatesFolder.getFilesByName(templateName);
-          doc = files.next().makeCopy(docName, getFolder(RPD_work_directory, year, row[1], row[3]));
-          docBody = DocumentApp.openById(doc.getId()).getBody();
-          // получаем данные о пререквизитах
-          prerequisites = getPrerequisites(values, inx, prerequisitesValues[id], connectValues);
-          // наполняем данными файл контентного шаблона
-          processDoc(docBody, row, competencies, extraData[id], variations, prerequisites, profs, description[id], id);
-        } else {
-          throw 'Не найден контентный шаблон для дисциплины ' + name + ' с id ' + id;
+            row = values[rowNumber]
+            id = row[35]
+
+            // если для дисциплины указан id контентного шаблона, то создаем РПД
+            if (id) {
+                name = !isEmpty(row[9]) ? row[9] : row[8];
+                docName = row[0] + '_' + name;
+                year = row[0].split('.')[0];
+                // находим имя соответствующего дисциплине контентного шаблона
+                templateName = getTemplateName(templateNames, id);
+
+                if (templateName) {
+                    files = templatesFolder.getFilesByName(templateName);
+                    doc = files.next().makeCopy(docName, getFolder(RPD_work_directory, year, row[1], row[3]));
+                    docBody = DocumentApp.openById(doc.getId()).getBody();
+                    // получаем данные о пререквизитах
+                    prerequisites = getPrerequisites(values, rowNumber, prerequisitesValues[id], connectValues);
+                    // наполняем данными файл контентного шаблона
+                    processDoc(docBody, row, competencies, extraData[id], variations, prerequisites, profs, description[id], id);
+                } else {
+                    throw 'Не найден контентный шаблон для дисциплины ' + name + ' с id ' + id;
+                }
+            }
         }
-      }
-    }
-  });
+    );
 }
 
 

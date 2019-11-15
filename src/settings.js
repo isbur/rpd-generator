@@ -13,3 +13,4 @@ var CONTROL_SPREADSHEET_ID = '1jtOo9-VtaE8D1B6UErDgdprW3SoeGo20ZDkarnubV2Q'
 // var RPD_MAIN_FOLDER_ID = '1vnftIwZ06iueU6tdwjLf0GVdFJtPUQ3-';   // 2015 only, из папки для бекапов
 var RPD_MAIN_FOLDER_ID = '1HY5cV8CitDR0vcpIzCPKtwf9Vy-uCiJS' // Тестовая папка, размещена (14.11.2019) внутри бекапов
 
+var RPD_AUTOMATIC_GENERATOR_TERMINATING_INDEX = 2
