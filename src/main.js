@@ -109,10 +109,14 @@ function cleanAllTriggers(){
 
 function generationProcessStep() {
     var initialMoment = Date.now()
-    var RPDcontrolSheet = new RPDcontrolSheet
-    var DisciplinesSheet = new DisciplinesSheet
+    RPDcontrolSheet = new RPDcontrolSheet()
+    DisciplinesSheet = new DisciplinesSheet()
     while (Date.now() - initialMoment < LAUNCH_GENERATION_SCRIPT_TIMEOUT - 20 * 1000) {
+        var before = Date.now()
         generateSingleRPD(RPDcontrolSheet, DisciplinesSheet)
+        var after = Date.now()
+        console.log("Proceeded to next RPD.")
+        console.log(Math.floor((after-before)/1000)
     }
 }
 
