@@ -20,7 +20,7 @@ function onOpen() {
     {name: 'Сделать выгрузку', functionName: 'getDisciplines'},
     {name: 'Создать контентные шаблоны', functionName: 'createTemplatesManually'},
     {name: 'Создать РПД по столбцу "Создать РПД"', functionName: 'createRPDManually'},
-    {name: 'Создать все РПД (потребуется много времени на выполнение)', functionName: 'launchGenerationProcess'}
+    {name: 'Запустить процесс создания всех РПД заново', functionName: 'startNewGenerationProcess'}
   ]);
 }
 
@@ -62,9 +62,9 @@ function createRPDManually(){
  * 2. ???
  *      * Trigger job must check itself whether the whole task is finished
  */
-function launchGenerationProcess() {
+function startNewGenerationProcess() {
 
-    var disciplinesSheet = new DisciplinesSheet
+    disciplinesSheet = new DisciplinesSheet()
 
     var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
     var templatesFolder = getNewTemplatesFolder()
@@ -75,6 +75,7 @@ function launchGenerationProcess() {
         [-1, templatesFolder.getId(), RPD_folder.getId(), milestone]
     ])
 
+    cleanAllTriggers()
     setNewTriggerWithTimeoutInMinutes(5)
 }
 
@@ -113,7 +114,8 @@ function generationProcessStep() {
     DisciplinesSheet = new DisciplinesSheet()
     while (Date.now() - initialMoment < LAUNCH_GENERATION_SCRIPT_TIMEOUT - 20 * 1000) {
         var before = Date.now()
-        generateSingleRPD(RPDcontrolSheet, DisciplinesSheet)
+        var disciplineIndex = RPDcontrolSheet.getNextDisciplineIndex()
+        generateSingleRPD(RPDcontrolSheet, DisciplinesSheet, disciplineIndex)
         var after = Date.now()
         console.log("Proceeded to next RPD.")
         console.log(Math.floor((after-before)/1000).toString())
@@ -133,7 +135,7 @@ function generationProcessStep() {
  *
  *   * (optional) generate more RPD at once
  */
-function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet) {
+function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet, newDisciplineIndex) {
 
     this.check_whether_content_template_was_already_generated = function(id_without_zeros){
         var search_term = "title contains 'CD_"+idToString(id_without_zeros)+"'"  // contains performs prefix search (as stated in)
@@ -142,8 +144,8 @@ function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet) {
         return fileIterator.hasNext()
     }
 
-    var lastDisciplineIndex = RPDcontrolSheet.getLastDisciplineIndex()
-    var newDisciplineIndex = lastDisciplineIndex + 1
+    //var lastDisciplineIndex = RPDcontrolSheet.getLastDisciplineIndex()
+    //var newDisciplineIndex = lastDisciplineIndex + 1
     console.log("Processing next discipline")
     console.log(newDisciplineIndex)
 
@@ -163,9 +165,8 @@ function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet) {
     try {
         createRPD(RPD_folder, templatesFolder, [newDisciplineIndex])
     } catch(error) {
-        RPDcontrolSheet.reportFailedDiscipline(newDisciplineIndex)
-        RPDcontrolSheet.updateLastDisciplineIndex()
-        throw error
+        RPDcontrolSheet.reportError(newDisciplineIndex)
+        // throw error
     }
 
     var milestone = RPDcontrolSheet.getMilestone()
@@ -173,72 +174,7 @@ function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet) {
         console.log("reached milestone...")
         cleanAllTriggers()
     }
-    RPDcontrolSheet.updateLastDisciplineIndex()
-}
-
-
-/**
- *
- */
-function RPDcontrolSheet () {
-
-    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
-
-    /**
-     *
-     */
-    this.reportFailedDiscipline = function(index){
-        this.setDatumToCell(
-            "E2",
-            this.getDatumFromCell("E2") + ";" + index
-        )
-    }
-
-    this.getMilestone = function() {
-        return this.getDatumFromCell("D2")
-    }
-
-    this.getLastDisciplineIndex = function () {
-        var lastDisciplineIndex = this.getDatumFromCell("A2")
-        if (lastDisciplineIndex === "") {
-            throw "lastDisciplineIndex cell is empty!"
-        } else {
-            lastDisciplineIndex = parseInt(lastDisciplineIndex)
-        }
-        return lastDisciplineIndex
-    }
-
-    this.updateLastDisciplineIndex = function () {
-        this.setDatumToCell("A2", parseInt(this.getDatumFromCell("A2")) + 1 )
-    }
-
-    this.getTemplatesFolder = function () {
-        return this.getFolderById(this.getDatumFromCell("B2"))
-    }
-
-    this.setTemplatesFolder = function (value) {
-        this.setDatumToCell("B2", value)
-    }
-
-    this.getRPD_folder = function () {
-        return this.getFolderById(this.getDatumFromCell("C2"))
-    }
-
-    this.setRPD_folder = function (value) {
-        this.setDatumToCell("C2", value)
-    }
-
-    this.getDatumFromCell = function (address){
-        return controlSheet.getRange(address).getValue()
-    }
-
-    this.setDatumToCell = function (address, value){
-        return controlSheet.getRange(address).setValue(value)
-    }
-
-    this.getFolderById = function (folderId){
-        return DriveApp.getFolderById(folderId)
-    }
+    RPDcontrolSheet.reportSuccess(newDisciplineIndex)
 }
 
 
