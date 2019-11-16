@@ -64,7 +64,8 @@ function createTemplates(newTemplatesFolder, requiredIds) {
     //console.log("inside while")
     file = files.next();
     name = file.getName().split('.');
-    id = name[0];
+    id_with_leading_zeros = name[0];
+    id = id_with_leading_zeros
     //console.log(id)
 
     // для каждой дисциплины из списка искомых создаем контентный шаблон

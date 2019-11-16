@@ -135,8 +135,8 @@ function generationProcessStep() {
  */
 function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet) {
 
-    this.check_whether_content_template_was_already_generated = function(id){
-        var search_term = "title contains 'CD_"+id+"'"  // contains performs prefix search (as stated in)
+    this.check_whether_content_template_was_already_generated = function(id_without_zeros){
+        var search_term = "title contains 'CD_"+isToString(id_without_zeros)+"'"  // contains performs prefix search (as stated in)
         console.log(search_term)
         var fileIterator = templatesFolder.searchFiles(search_term)
         return fileIterator.hasNext()
