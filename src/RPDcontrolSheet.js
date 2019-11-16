@@ -25,11 +25,11 @@ function RPDcontrolSheet () {
      *
      * О, пусть "force" будет для человечески указанной перезаписи
      */
-    this.reportSuccess(disciplineIndex){
+    this.reportSuccess = function(disciplineIndex){
         controlSheet.getRange(disciplineIndex+1,1).setValue("success")
     }
 
-    this.reportError(disciplineIndex){
+    this.reportError = function(disciplineIndex){
         controlSheet.getRange(disciplineIndex+1,1).setValue("error")
     }
 
