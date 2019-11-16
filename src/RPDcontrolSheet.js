@@ -26,20 +26,26 @@ function RPDcontrolSheet () {
      * О, пусть "force" будет для человечески указанной перезаписи
      */
     this.reportSuccess = function(disciplineIndex){
-        controlSheet.getRange(disciplineIndex+3,1).setValue("success in "+disciplineIndex.toString())
+        controlSheet.getRange(disciplineIndex+3,1).setValue("success")
+        controlSheet.getRange(disciplineIndex+3,1).setValue(disciplineIndex)
     }
 
     this.reportError = function(disciplineIndex){
-        controlSheet.getRange(disciplineIndex+3,1).setValue("error in "+disciplineIndex.toString())
+        controlSheet.getRange(disciplineIndex+3,1).setValue("error")
+        controlSheet.getRange(disciplineIndex+3,1).setValue(disciplineIndex)
     }
 
     this.getNextDisciplineIndex = function () {
         var disciplinesStatuses = this.getColumn(1)
-        if(disciplinesStatuses.indexOf("force") !== -1){
-            return disciplinesStatuses.indexOf("force")
-        } else {
-            return disciplinesStatuses.length
-        }
+        disciplinesStatuses.forEach(
+            function(status, i){
+                if(status === "force" || status == "") {
+                    return i
+                }
+            }
+        )
+        return disciplinesStatuses.length // invokes only if for-loop failed
+
     }
 
     this.updateLastDisciplineIndex = function () {
@@ -63,7 +69,7 @@ function RPDcontrolSheet () {
     }
 
     this.getColumn = function(columnNumber){
-        var data = controlSheet.getRange(3, columnNumber, controlSheet.getLastRow()).getValues()
+        var data = controlSheet.getRange(3, columnNumber, controlSheet.getLastRow()-2).getValues()
         data.forEach(
             function(datum, i){
                 data[i] = data[i][0]
