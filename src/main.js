@@ -117,7 +117,12 @@ function generationProcessStep() {
         Logger.log("Creating new content template...")
         createTemplates(templatesFolder, [contentTemplateId])
     }
-    createRPD(RPD_folder, [newDisciplineIndex])
+
+    try {
+        createRPD(RPD_folder, [newDisciplineIndex])
+    } catch(error) {
+        RPDcontrolSheet.reportFailedDiscipline(newDisciplineIndex)
+    }
 
     var milestone = RPDcontrolSheet.getMilestone()
     if(newDisciplineIndex == milestone) {
@@ -143,6 +148,13 @@ function RPDcontrolSheet () {
     /**
      *
      */
+    this.reportFailedDiscipline = function(index){
+        this.setDatumToCell(
+            "E2",
+            this.getDatumFromCell("E2") + ";" + index
+        )
+    }
+
     this.getMilestone = function() {
         return this.getDatumFromCell("D2")
     }
