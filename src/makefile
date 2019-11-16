@@ -4,3 +4,6 @@ git:
 	git push
 clasp:
 	clasp login --no-localhost
+clasp-push:
+	make git m="$m"
+	clasp push

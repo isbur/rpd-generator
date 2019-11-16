@@ -129,6 +129,7 @@ function generationProcessStep() {
         createRPD(RPD_folder, templatesFolder, [newDisciplineIndex])
     } catch(error) {
         RPDcontrolSheet.reportFailedDiscipline(newDisciplineIndex)
+        RPDcontrolSheet.updateLastDisciplineIndex()
         throw error
     }
 
