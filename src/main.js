@@ -74,7 +74,7 @@ function startNewGenerationProcess() {
 
     controlSheet.setDatumToCell("B2", templatesFolder.getId())
     controlSheet.setDatumToCell("C2", RPD_folder.getId())
-    controlSheet.setDatumToCell{"D2", milestone}
+    controlSheet.setDatumToCell("D2", milestone)
 
     cleanAllTriggers()
     setNewTriggerWithTimeoutInMinutes(5)
