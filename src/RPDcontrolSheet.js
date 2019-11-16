@@ -27,12 +27,12 @@ function RPDcontrolSheet () {
      */
     this.reportSuccess = function(disciplineIndex){
         controlSheet.getRange(disciplineIndex+3,1).setValue("success")
-        controlSheet.getRange(disciplineIndex+3,1).setValue(disciplineIndex)
+        controlSheet.getRange(disciplineIndex+3,2).setValue(disciplineIndex)
     }
 
     this.reportError = function(disciplineIndex){
         controlSheet.getRange(disciplineIndex+3,1).setValue("error")
-        controlSheet.getRange(disciplineIndex+3,1).setValue(disciplineIndex)
+        controlSheet.getRange(disciplineIndex+3,2).setValue(disciplineIndex)
     }
 
     this.getNextDisciplineIndex = function () {
@@ -69,7 +69,7 @@ function RPDcontrolSheet () {
     }
 
     this.getColumn = function(columnNumber){
-        var data = controlSheet.getRange(3, columnNumber, controlSheet.getLastRow()-2).getValues()
+        var data = controlSheet.getRange(1, columnNumber, controlSheet.getLastRow()).getValues()
         data.forEach(
             function(datum, i){
                 data[i] = data[i][0]
