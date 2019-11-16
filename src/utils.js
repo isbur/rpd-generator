@@ -1,11 +1,15 @@
-// этот файл содержит переиспользуемые функции,
-// которые используются в других задачах
+/**
+ * @file этот файл содержит переиспользуемые функции,
+ *  которые используются в других задачах
+ *
+ */
+
 
 function toStr(value) {
   if (value === undefined || value === null) {
     return '';
   }
-  
+
   return value.toString().trim();
 }
 
@@ -13,7 +17,7 @@ function isBlock(value) {
   if (isEmpty(value)) {
     return false;
   }
-  
+
   var hasName = value.indexOf('Блок') === 0;
   var hasNumber = value[0] === 'Б' && /\d/.test(value[1]);
   var isElective = value.indexOf('акультативы') > 0 || value.indexOf('ФТД') > -1;
@@ -23,11 +27,11 @@ function isBlock(value) {
 
 function strToNum(str) {
   var number = Number(str);
-  
+
   return isNaN(number) ? 0 : number;
 }
 
-function getInxsSum(row, inxs) {  
+function getInxsSum(row, inxs) {
   return inxs.reduce(function(sum, value) {
     return sum + strToNum(row[value]);
   }, 0);
@@ -43,27 +47,27 @@ function inxToString(inx) {
   var str = toStr(inx);
   var zeroNumber = 3 - str.length;
   var i;
-  
+
   for (i = 0; i < zeroNumber; i++) {
     str = '0' + str;
   }
-  
+
   return str;
 }
 
 function findDisciplineInx(id, name, table) {
   var i, row;
-  
+
   for (i = 0; i < table.length; i++) {
     row = table[i];
-    
+
     if (row[6] == id
         || row[8] == getRussianName(name)
         || !isEmpty(row[9]) && row[9] == getEnglishName(name)) {
       return i;
     }
-  }  
-  
+  }
+
   // возвращаем -1, если не нашли дисциплину
   return -1;
 }
@@ -72,15 +76,15 @@ function getRussianName(name) {
   var names = name.split('/');
   var name1 = names[0].trim();
   var name2 = names[1] && names[1].trim();
-  
+
   if (/[а-яА-ЯЁё]/.test(name1)) {
     return name1;
   }
-  
+
   if (name2 && /[а-яА-ЯЁё]/.test(name2)) {
     return name2;
   }
-  
+
   return '';
 }
 
@@ -88,15 +92,15 @@ function getEnglishName(name) {
   var names = name.split('/');
   var name1 = names[0].trim();
   var name2 = names[1] && names[1].trim();
-  
+
   if (/[a-zA-z]/.test(name1) && !/[а-яА-ЯЁё]/.test(name1)) {
     return name1;
   }
-  
+
   if (name2 && /[a-zA-z]/.test(name2) && !/[а-яА-ЯЁё]/.test(name2)) {
     return name2;
   }
-  
+
   return '';
 }
 
@@ -105,23 +109,23 @@ function isDisciplineTrue(value) {
 }
 
 
-function isEmpty(value) {  
+function isEmpty(value) {
   return toStr(value).length === 0;
 }
 
 function setCommas(str) {
   var result = str;
-  
+
   if (str.length > 1 && str.indexOf(',') === -1) {
     result = str.split('').join(', ');
   }
-  
+
   return result;
 }
 
 function fixString(str) {
   var result = str.toString();
-  
+
   result = result.replace(/\t/g, '');
   result = result.replace(/ +/g, ' ');
   result = result.replace(/\n+/gm, '\n');
@@ -130,7 +134,7 @@ function fixString(str) {
   result = result.replace(/\r\n/g, '\n');
   result = result.replace(/\n /g, '\n');
   result = result.replace(/ \n/g, '\n');
-    
+
   return result.trim();
 }
 
@@ -142,11 +146,11 @@ function idToString(id) {
   var str = toStr(id);
   var zeroNumber = 3 - str.length;
   var i;
-  
+
   for (i = 0; i < zeroNumber; i++) {
     str = '0' + str;
   }
-  
+
   return str;
 }
 
@@ -166,13 +170,13 @@ function addDot(str) {
 
 function setSemicolons(str) {
   var result = str.replace(/[^;]$/gm, '$&;');
-  
+
   return result.slice(0, -1);
 }
 
 function getConjunction(arr1, arr2) {
   var result = [];
-  
+
   if (arr1 === undefined) {
     return arr2;
   } else {
@@ -180,6 +184,45 @@ function getConjunction(arr1, arr2) {
       result[i] = arr1[i] && arr2[i];
     }
   }
-  
+
   return result;
+}
+
+
+/**
+ * Создаёт новую папку в указанной по правилу "launch" + текущее время
+ * @param {Folder} folder Внимательно! Нужна папка, а не id
+ * @returns {Folder}
+ */
+function createNewFolderInside(folder){
+    var currentTime = new Date().toLocaleString()
+    return folder.createFolder("launch " + currentTime)
+}
+
+
+/**
+ * @returns {Folder} folder, not id
+ */
+function getCurrentTemplatesFolder(){
+    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Content Templates Folder")
+    var templatesFolderId = controlSheet.getRange("A1").getValue()
+    if (templatesFolderId == ""){
+        throw "No templatesFolderId found!"
+    }
+    var templatesFolder = DriveApp.getFolderById(templatesFolderId);
+    return templatesFolder
+}
+
+
+/**
+ *
+ */
+function getNewTemplatesFolder(){
+    var templatesMainFolder = DriveApp.getFolderById(CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID)
+    return newTemplatesFolder = createNewFolderInside(templatesMainFolder)
+}
+
+function getNewRPD_folder() {
+    var RPD_main_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
+    return RPD_work_directory = createNewFolderInside(RPD_main_folder)
 }

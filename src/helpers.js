@@ -216,9 +216,7 @@ function getPoints(number) {
   return number + ' балл' + ending;
 }
 
-function getTemplateNames() {
-  var templatesFolderId = '19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o';
-  var templatesFolder = DriveApp.getFolderById(templatesFolderId);
+function getTemplateNames(templatesFolder) {
   var files = templatesFolder.getFiles();
   var names = [];
 
@@ -396,7 +394,10 @@ function getPrerequisites(values, inx, prerequisites, connect) {
    * New behavior!
    */
 
-   if (data.list == "" && prerequisites.bachelor == "" && prerequisites.master == ""){
+   if (
+       prerequisites.list == "" && prerequisites.bachelor == "" && prerequisites.master == "" ||
+       prerequisites.data == "" && prerequisites.bachelor == "" && prerequisites.master == ""
+    ){
         prerequisites.thisIsASpecialCase = true
         prerequisites.stringToWrite = ""
    } else {
