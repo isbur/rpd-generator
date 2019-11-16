@@ -62,7 +62,7 @@ function RPDcontrolSheet () {
         this.setDatumToCell("C2", value)
     }
 
-    this.getColumn(columnNumber){
+    this.getColumn = function(columnNumber){
         var data = controlSheet.getRange(1, columnNumber, controlSheet.getLastRow()).getValues()
         data.forEach(
             function(datum, i){
