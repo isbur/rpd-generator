@@ -16,17 +16,7 @@
  * @see getPrerequisitesValues
  * @see helpers.js
  */
-function createRPD(RPD_work_directory, requiredDisciplineSheetIndices) {
-
-    /**
-     * папка контентных шаблонов
-     * теперь определяется по-новому (динамически подгружается из управляющей таблицы, а не захардкожена)
-     */
-    var templatesFolder = getCurrentTemplatesFolder()
-    /****************************************************************************************************** */
-
-
-
+function createRPD(RPD_work_directory, templatesFolder, requiredDisciplineSheetIndices) {
 
     // имена файлов контентных шаблонов
     var templateNames = getTemplateNames(templatesFolder);

@@ -46,7 +46,14 @@ function createRPDManually(){
     var RPD_main_folder = DriveApp.getFolderById(RPD_MAIN_FOLDER_ID)
     var RPD_work_directory = createNewFolderInside(RPD_main_folder)
 
-    createRPD(RPD_work_directory, requiredDisciplineSheetIndices)
+    /**
+     * папка контентных шаблонов
+     * теперь определяется по-новому (динамически подгружается из управляющей таблицы, а не захардкожена)
+     */
+    var templatesFolder = getCurrentTemplatesFolder()
+    /****************************************************************************************************** */
+
+    createRPD(RPD_work_directory, templatesFolder, requiredDisciplineSheetIndices)
 }
 
 
@@ -119,7 +126,7 @@ function generationProcessStep() {
     }
 
     try {
-        createRPD(RPD_folder, [newDisciplineIndex])
+        createRPD(RPD_folder, templatesFolder, [newDisciplineIndex])
     } catch(error) {
         RPDcontrolSheet.reportFailedDiscipline(newDisciplineIndex)
     }
