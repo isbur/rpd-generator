@@ -26,11 +26,11 @@ function RPDcontrolSheet () {
      * О, пусть "force" будет для человечески указанной перезаписи
      */
     this.reportSuccess = function(disciplineIndex){
-        controlSheet.getRange(disciplineIndex+1,1).setValue("success")
+        controlSheet.getRange(disciplineIndex+3,1).setValue("success in "+disciplineIndex.toString())
     }
 
     this.reportError = function(disciplineIndex){
-        controlSheet.getRange(disciplineIndex+1,1).setValue("error")
+        controlSheet.getRange(disciplineIndex+3,1).setValue("error in "+disciplineIndex.toString())
     }
 
     this.getNextDisciplineIndex = function () {
@@ -63,7 +63,7 @@ function RPDcontrolSheet () {
     }
 
     this.getColumn = function(columnNumber){
-        var data = controlSheet.getRange(1, columnNumber, controlSheet.getLastRow()).getValues()
+        var data = controlSheet.getRange(3, columnNumber, controlSheet.getLastRow()).getValues()
         data.forEach(
             function(datum, i){
                 data[i] = data[i][0]
