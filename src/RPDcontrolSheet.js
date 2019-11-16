@@ -39,7 +39,7 @@ function RPDcontrolSheet () {
         var disciplinesStatuses = this.getColumn(1)
         disciplinesStatuses.forEach(
             function(status, i){
-                if(status === "force" || status == "") {
+                if(status !== "success" && status !== "error") {
                     return i
                 }
             }
