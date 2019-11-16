@@ -52,7 +52,7 @@ function createTemplates(newTemplatesFolder, requiredIds) {
   // собираем id искомых дисциплин | – когда-то собирали...
   requiredIds.forEach(
         function (id, index) {
-            requiredIds[index] = Math.round(id).toString()
+            requiredIds[index] = idToString( Math.round(id) )
         }
   )
   var ids = requiredIds;
@@ -69,7 +69,7 @@ function createTemplates(newTemplatesFolder, requiredIds) {
 
     // для каждой дисциплины из списка искомых создаем контентный шаблон
     if (ids.indexOf(id) !== -1) {
-      console.log("inside ids checkoing if")
+      console.log("inside ids checking if")
       rowInx = booksRowInxs[id];
 
       if (rowInx > 0) {
