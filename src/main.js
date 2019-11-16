@@ -65,15 +65,16 @@ function createRPDManually(){
 function startNewGenerationProcess() {
 
     disciplinesSheet = new DisciplinesSheet()
+    controlSheet = new RPDcontrolSheet()
 
-    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
     var templatesFolder = getNewTemplatesFolder()
     var RPD_folder = getNewRPD_folder()
     var milestone = disciplinesSheet.getNumberOfItems() - 1 // Milestone is the index of last row
     // var milestone = 0
-    controlSheet.getRange("A2:D2").setValues([  // Strange... I've already changed these strings...
-        [-1, templatesFolder.getId(), RPD_folder.getId(), milestone]
-    ])
+
+    controlSheet.setDatumToCell("B2", templatesFolder.getId())
+    controlSheet.setDatumToCell("C2", RPD_folder.getId())
+    controlSheet.setDatumToCell{"D2", milestone}
 
     cleanAllTriggers()
     setNewTriggerWithTimeoutInMinutes(5)
