@@ -109,8 +109,10 @@ function cleanAllTriggers(){
 
 function generationProcessStep() {
     var initialMoment = Date.now()
+    var RPDcontrolSheet = new RPDcontrolSheet()
+    var DisciplinesSheet = new DisciplinesSheet()
     while (Date.now() - initialMoment < LAUNCH_GENERATION_SCRIPT_TIMEOUT - 20 * 1000) {
-        generateSingleRPD()
+        generateSingleRPD(RPDcontrolSheet, DisciplinesSheet)
     }
 }
 
@@ -127,10 +129,7 @@ function generationProcessStep() {
  *
  *   * (optional) generate more RPD at once
  */
-function generateSingleRPD() {
-
-    RPDcontrolSheet = new RPDcontrolSheet()
-    DisciplinesSheet = new DisciplinesSheet()
+function generateSingleRPD(RPDcontrolSheet, DisciplinesSheet) {
 
     this.check_whether_content_template_was_already_generated = function(id){
         var search_term = "title contains 'CD_"+id+"'"  // contains performs prefix search (as stated in)
