@@ -8,6 +8,8 @@ var CONTENT_TEMPLATES_MAIN_TEST_FOLDER_ID = '1QEomSBJvbRfpOqz0MANPmO4RZ7yPBc1C'
 
 var CONTROL_SPREADSHEET_ID = '1jtOo9-VtaE8D1B6UErDgdprW3SoeGo20ZDkarnubV2Q'
 
+var LAUNCH_GENERATION_SCRIPT_TIMEOUT = 5 * 60 * 1000  // in ms
+
 // var RPD_MAIN_FOLDER_ID = '1qzgByLsm73nClqWiuYTM2dbkuDQvFhz5'; // Походе, реально итоговая папка с выгрузками
 // var RPD_MAIN_FOLDER_ID = '1BLupPMJ_LQfdBIa18jY5bhGN2GX6beiS'; // Видимо, папка для бекапов
 // var RPD_MAIN_FOLDER_ID = '1vnftIwZ06iueU6tdwjLf0GVdFJtPUQ3-';   // 2015 only, из папки для бекапов

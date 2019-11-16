@@ -60,7 +60,7 @@ function createRPDManually(){
 /**
  * 1. Set up a trigger
  * 2. ???
- *      * Trigger must check itself whether job is finished
+ *      * Trigger job must check itself whether the whole task is finished
  */
 function launchGenerationProcess() {
 
@@ -75,10 +75,43 @@ function launchGenerationProcess() {
         [-1, templatesFolder.getId(), RPD_folder.getId(), milestone]
     ])
 
+    setNewTriggerWithTimeoutInMinutes(5)
+}
+
+
+function changeTriggerTimeout() {
+    cleanAllTriggers()
+    setNewTriggerWithTimeoutInMinutes(5)
+}
+
+
+/**
+ * Function needed to make it possible to change trigger parameters without restarting the whole job
+ * @param {Integer} timeout
+ */
+function setNewTriggerWithTimeoutInMinutes(timeout) {
     ScriptApp.newTrigger("generationProcessStep")
         .timeBased()
-        .everyMinutes(1)
+        .everyMinutes(timeout)
         .create()
+}
+
+
+function cleanAllTriggers(){
+    var triggers = ScriptApp.getUserTriggers(SpreadsheetApp.getActiveSpreadsheet())
+    triggers.forEach(
+        function (trigger) {
+            ScriptApp.deleteTrigger(trigger)
+        }
+    )
+}
+
+
+function generationProcessStep() {
+    var initialMoment = Date.now()
+    while (Date.now() - initialMoment < LAUNCH_GENERATION_SCRIPT_TIMEOUT - 20 * 1000) {
+        generateSingleRPD()
+    }
 }
 
 
@@ -90,12 +123,11 @@ function launchGenerationProcess() {
  *   ****
  *
  *   // 3. Use it as an index to generate both template and RPD
- *
- *   * (optional) dont't generate content template if it is already generated
+ *         * check whether content template  is already generated
  *
  *   * (optional) generate more RPD at once
  */
-function generationProcessStep() {
+function generateSingleRPD() {
 
     RPDcontrolSheet = new RPDcontrolSheet()
     DisciplinesSheet = new DisciplinesSheet()
@@ -136,12 +168,7 @@ function generationProcessStep() {
     var milestone = RPDcontrolSheet.getMilestone()
     if(newDisciplineIndex == milestone) {
         console.log("reached milestone...")
-        var triggers = ScriptApp.getUserTriggers(SpreadsheetApp.getActiveSpreadsheet())
-        triggers.forEach(
-            function (trigger) {
-                ScriptApp.deleteTrigger(trigger)
-            }
-        )
+        cleanAllTriggers()
     }
     RPDcontrolSheet.updateLastDisciplineIndex()
 }
