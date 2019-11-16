@@ -39,16 +39,14 @@ function RPDcontrolSheet () {
 
     this.getNextDisciplineIndex = function () {
         var disciplinesStatuses = this.getColumn(1)
-        disciplinesStatuses.forEach(
-            function(status, i){
-                console.log("inside for loop")
-                console.log(i)
-                if(status !== "success" && status !== "error") {
-                    console.log("inside if")
-                    return i
-                }
+        for(var i = 0; i < disciplinesStatuses.length; i++) {
+            status = disciplinesStatuses[i]
+            if(status !== "success" && status !== "error") {
+                console.log("inside if")
+                return i
             }
-        )
+        }
+
         console.log("outside for loop")
         return disciplinesStatuses.length // invokes only if for-loop failed
 
