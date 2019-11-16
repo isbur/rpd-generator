@@ -109,8 +109,8 @@ function cleanAllTriggers(){
 
 function generationProcessStep() {
     var initialMoment = Date.now()
-    var RPDcontrolSheet = new RPDcontrolSheet()
-    var DisciplinesSheet = new DisciplinesSheet()
+    var RPDcontrolSheet = new RPDcontrolSheet
+    var DisciplinesSheet = new DisciplinesSheet
     while (Date.now() - initialMoment < LAUNCH_GENERATION_SCRIPT_TIMEOUT - 20 * 1000) {
         generateSingleRPD(RPDcontrolSheet, DisciplinesSheet)
     }
