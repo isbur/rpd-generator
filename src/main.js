@@ -116,7 +116,7 @@ function generationProcessStep() {
         generateSingleRPD(RPDcontrolSheet, DisciplinesSheet)
         var after = Date.now()
         console.log("Proceeded to next RPD.")
-        console.log(Math.floor((after-before)/1000)
+        console.log(Math.floor((after-before)/1000))
     }
 }
 
