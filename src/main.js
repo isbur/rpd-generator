@@ -102,26 +102,26 @@ function generationProcessStep() {
 
     this.check_whether_content_template_was_already_generated = function(id){
         var search_term = "title contains 'CD_"+id+"'"  // contains performs prefix search (as stated in)
-        Logger.log(search_term)
+        console.log(search_term)
         var fileIterator = templatesFolder.searchFiles(search_term)
         return fileIterator.hasNext()
     }
 
     var lastDisciplineIndex = RPDcontrolSheet.getLastDisciplineIndex()
     var newDisciplineIndex = lastDisciplineIndex + 1
-    Logger.log("Processing next discipline")
-    Logger.log(newDisciplineIndex)
+    console.log("Processing next discipline")
+    console.log(newDisciplineIndex)
 
     var templatesFolder = RPDcontrolSheet.getTemplatesFolder()
     var RPD_folder = RPDcontrolSheet.getRPD_folder()
-    Logger.log(templatesFolder.getId())
-    Logger.log(RPD_folder.getId())
+    console.log(templatesFolder.getId())
+    console.log(RPD_folder.getId())
 
     var contentTemplateId = DisciplinesSheet.getContentTemlpateId(newDisciplineIndex)
-    Logger.log("ContentTemplateId")
-    Logger.log(contentTemplateId)
+    console.log("ContentTemplateId")
+    console.log(contentTemplateId)
     if (this.check_whether_content_template_was_already_generated(contentTemplateId) === false) {
-        Logger.log("Creating new content template...")
+        console.log("Creating new content template...")
         createTemplates(templatesFolder, [contentTemplateId])
     }
 
@@ -135,7 +135,7 @@ function generationProcessStep() {
 
     var milestone = RPDcontrolSheet.getMilestone()
     if(newDisciplineIndex == milestone) {
-        Logger.log("reached milestone...")
+        console.log("reached milestone...")
         var triggers = ScriptApp.getUserTriggers(SpreadsheetApp.getActiveSpreadsheet())
         triggers.forEach(
             function (trigger) {

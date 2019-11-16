@@ -36,7 +36,7 @@ function createTemplatesManually(){
  * Кстати, в таком случае мой тест ничего бы не дал – я ведь был бы хозяином своего файла.
  */
 function createTemplates(newTemplatesFolder, requiredIds) {
-    Logger.log("inside createTemplates()")
+    console.log("inside createTemplates()")
   // файл-шаблон РПД
   var template = DriveApp.getFileById('10BziNwk_IniVfaTWQ8oeEW-6g7TEbQLehR5i7TD3_z4');
 
@@ -61,19 +61,19 @@ function createTemplates(newTemplatesFolder, requiredIds) {
 
   // проходим по всем файлам контента дисциплин
   while (files.hasNext()) {
-    //Logger.log("inside while")
+    //console.log("inside while")
     file = files.next();
     name = file.getName().split('.');
     id = name[0];
-    //Logger.log(id)
+    //console.log(id)
 
     // для каждой дисциплины из списка искомых создаем контентный шаблон
     if (ids.indexOf(id) !== -1) {
-      Logger.log("inside ids checkoing if")
+      console.log("inside ids checkoing if")
       rowInx = booksRowInxs[id];
 
       if (rowInx > 0) {
-        Logger.log("inside doc creating if")
+        console.log("inside doc creating if")
         spreadsheet = SpreadsheetApp.open(file);
         newDocName = 'CD_' + id + '_' + name[1];
         newDoc = template.makeCopy(newDocName, newTemplatesFolder);
@@ -81,7 +81,7 @@ function createTemplates(newTemplatesFolder, requiredIds) {
         getCharacteristic(spreadsheet, docBody);
         partsData = getPartitionData(spreadsheet, docBody);
 
-        Logger.log(newDoc.getId())
+        console.log(newDoc.getId())
         // сохраняем промежуточные данные, необходимые для создания РПД
         booksSheet.getRange(rowInx, 7, 1, 3).setValues([partsData]);
       } else {
