@@ -3,7 +3,9 @@
  */
 function RPDcontrolSheet () {
 
-    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
+    var controlSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Переменные генерации РПД")
+
+    var progressSheet = SpreadsheetApp.openById(CONTROL_SPREADSHEET_ID).getSheetByName("Прогресс генерации РПД")
 
 
     this.reportFailedDiscipline = function(index){
@@ -26,13 +28,13 @@ function RPDcontrolSheet () {
      * О, пусть "force" будет для человечески указанной перезаписи
      */
     this.reportSuccess = function(disciplineIndex){
-        controlSheet.getRange(disciplineIndex+3,1).setValue("success")
-        controlSheet.getRange(disciplineIndex+3,2).setValue(disciplineIndex)
+        progressSheet.getRange(disciplineIndex,1).setValue("success")
+        progressSheet.getRange(disciplineIndex,2).setValue(disciplineIndex)
     }
 
     this.reportError = function(disciplineIndex){
-        controlSheet.getRange(disciplineIndex+3,1).setValue("error")
-        controlSheet.getRange(disciplineIndex+3,2).setValue(disciplineIndex)
+        progressSheet.getRange(disciplineIndex,1).setValue("error")
+        progressSheet.getRange(disciplineIndex,2).setValue(disciplineIndex)
     }
 
     this.getNextDisciplineIndex = function () {
@@ -69,7 +71,7 @@ function RPDcontrolSheet () {
     }
 
     this.getColumn = function(columnNumber){
-        var data = controlSheet.getRange(1, columnNumber, controlSheet.getLastRow()).getValues()
+        var data = progressSheet.getRange(1, columnNumber, controlSheet.getLastRow()).getValues()
         data.forEach(
             function(datum, i){
                 data[i] = data[i][0]
