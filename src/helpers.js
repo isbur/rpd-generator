@@ -216,8 +216,7 @@ function getPoints(number) {
   return number + ' балл' + ending;
 }
 
-function getTemplateNames() {
-  var templatesFolder = getCurrentTemplatesFolder()
+function getTemplateNames(templatesFolder) {
   var files = templatesFolder.getFiles();
   var names = [];
 
