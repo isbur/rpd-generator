@@ -1,3 +1,6 @@
+login: igor
+password: 123456
+
 # Генератор РПД
 
 https://github.com/isbur/rpd-generator-public – файлы для доступа без авторизации.
