@@ -1,54 +1,45 @@
 /**
- * Создание файлов РПД. В действительности функция не принимает никаких аргументов, а инициализирует переменные с аналогичными названиями.
- * @param templatesFolder - Папка контентных шаблонов.
- * @param disciplineSheet - Файл "Выгрузка  дисциплин из УП".
- * @param disciplineSheet.values[].row.year
- * @param parameterSpreadsheet - Файл "Параметры для создания РПД"
- * @param parameterSpreadsheet.competencies
- * @see getRPDCompetencies
- * @see helpers.js
- * @param parameterSpreadsheet.prerequisitesValues
- * @see getPrerequisitesValues
- * @see helpers.js
+ * создание файлов РПД
  */
 function createRPD() {
-
   // папка контентных шаблонов
   var templatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
-  // имена файлов контентных шаблонов
-  var templateNames = getTemplateNames(templatesFolder);
 
-  // файл "Выгрузка дисциплин из УП"
+  // файл "Выгрузка  дисциплин из УП"
   var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
-  // значения таблицы "Выгрузка  дисциплин из УП"
-  var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
 
   // файл "Параметры для создания РПД"
   var parameterSpreadsheet = SpreadsheetApp.openById('1qO5RDdykeb0KjvlXeqNqNt3ZRAPlCTo0j0ClrXYkec0');
-  // получаем данные компетенций
-  var competencies = getRPDCompetencies(parameterSpreadsheet);
-  // берем данные из файла "Параметры для создания РПД"
-  var variations = getVariations(parameterSpreadsheet);
-  // собираем данные о пререквизитах
-  var prerequisitesValues = getPrerequisitesValues(parameterSpreadsheet);
-  // получаем инфу о профессиональной области дисциплин
-  var profs = getProfs(parameterSpreadsheet);
 
+  // значения таблицы "Выгрузка  дисциплин из УП"
+  var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
 
   // берем инфу о соответствии названий дисциплин и id контентных шаблонов
-  // работает с каким-то своим файлом
   var connectValues = getConnectValues();
+
+  // имена файлов контентных шаблонов
+  var templateNames = getTemplateNames(templatesFolder);
+
+  // получаем данные компетенций
+  var competencies = getRPDCompetencies(parameterSpreadsheet);
 
   // берем данные о дисциплинах из файла "Литература для дисциплин"
   var extraData = getExtraData();
 
+  // берем данные из файла "Параметры для создания РПД"
+  var variations = getVariations(parameterSpreadsheet);
+
+  // собираем данные о пререквизитах
+  var prerequisitesValues = getPrerequisitesValues(parameterSpreadsheet);
+
   // дополнительные данные о дисциплинах
   var description = getDescription();
 
+  // получаем инфу о профессиональной области дисциплин
+  var profs = getProfs(parameterSpreadsheet);
 
   var connect, id, name, docName, templateName;
   var files, year, doc, docBody, prerequisites;
-
 
   // пробегаемся по каждой строке файла всех дисциплин
   values.forEach(function(row, inx) {
@@ -80,10 +71,6 @@ function createRPD() {
   });
 }
 
-
-/**
- *
- */
 function processDoc(doc, values, competencies, extraData, variations, prerequisites, profs, desc, id) {
   var nameEng = toStr(values[9]);
   var zExamInfo = toStr(values[30]);
@@ -116,6 +103,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{course_description_2}', desc.desc2);
   doc.replaceText('{subject_area}', desc.subject);
   doc.replaceText('{course_objectives}', desc.objects);
+  doc.replaceText('{z_year}', values[32]);
   doc.replaceText('{main_books}', prerequisites.mainBooks);
   doc.replaceText('{extra_books}', prerequisites.extraBooks);
   doc.replaceText('{discipline_code}', disciplineCode);
@@ -155,30 +143,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{good_mark}', bMark + ' - ' + (aMark - 1) + ' баллов');
   doc.replaceText('{bad_mark}', cMark + ' - ' + (bMark - 1) + ' баллов');
   doc.replaceText('{lowest_mark}', dMark + ' - ' + (cMark - 1) + ' баллов');
-
-
-  // TODO: behavior needs to be modified
-  // 0. Сохранить поведение по умолчанию
-  // 1. Ячейка N пустая – тогда надо подставить фразу "Содержание дисциплины..." и вставить содержимое ячеек O и P | уточнить насчёт фразы
-  //    - Судя по всему, надо просто вставить содержимое одной из ячеек, не вставляя дополнительных фраз?
-  // 2. Все три ячейки – затирать шаблон | уточнить!
-
-  // Old behavior
-  // doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
-
-  // C этим подходом есть такая проблема: а что, если я неправильно понял предыдущую версию скрипта, и что-то где-то сломается?
-  // Надо _неинвазивно_ прилепить новое поведение.
-  //    // Пусть теперь вся строка формируется в getPrerequisites()
-  //    doc.replaceText('{prerequisites}', prerequisites.stringToWrite)
-
-  // Что же в итоге
-  if(prerequisites.thisIsASpecialCase === true){
-      // My behvaior
-      doc.replaceText('{prerequisites}', prerequisites.stringToWrite);
-  } else {
-      // Old behavior
-      doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
-  }
+  doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
 
   // проставляем данные заочки
   if (hasExtramural) {
@@ -190,7 +155,6 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
     var zSelf = Number(values[23]);
     var zContactHours = zLectures + zPractics;
 
-    doc.replaceText('{z_year}', values[32]);
     doc.replaceText('{z_exam}', getSemesters(values[18], true));
     doc.replaceText('{z_l_in_zet}', zLengthInZet);
     doc.replaceText('{z_l_in_ach}', zLengthInAch);
@@ -205,7 +169,6 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
     doc.replaceText('{z_l_in_ach_with_words}', zLengthInAch + getAcademName(zLengthInAch));
     doc.replaceText('{z_contact_hours_with_words}', zContactHours + getAcademName(zContactHours));
   } else {
-    doc.replaceText('{z_year}', '');
     doc.replaceText('{z_exam}', '-');
     doc.replaceText('{z_l_in_zet}', '-');
     doc.replaceText('{z_l_in_ach}', '-');
@@ -436,7 +399,9 @@ function setCompetencies(doc, competencies, compInfo, forms, id) {
         code = competencies[j].trim();
         table.replaceText('{k' + (j + 1) + '_code}', code);
 
-        if (compInfo[code]) {
+        if (!compInfo[code]) {
+
+        } else {
           table.replaceText('{k' + (j + 1) + '_name}', compInfo[code].name);
           table.replaceText('{k' + (j + 1) + '_results}', compInfo[code].results);
         }

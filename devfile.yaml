@@ -1,9 +1,19 @@
 metadata:
   name: inno
 projects:
+  - name: nodejs-web-app
+    source:
+      location: 'https://github.com/che-samples/web-nodejs-sample.git'
+      type: git
+      branch: master
+  - name: rpd-generator
+    source:
+      location https://isbur:<redacted>@github.com/isbur/rpd-generator
+      type: git
+      branch: master
   - name: rpd-generator-public
     source:
-      location: https://github.com/isbur/rpd-generator-public
+      location https://isbur:<redacted>@github.com/isbur/rpd-generator-public
       type: git
       branch: master
 attributes:
@@ -21,3 +31,52 @@ components:
     alias: nodejs
     image: 'isbur/rpd-generator-image:latest'
 apiVersion: 1.0.0
+commands:
+  - name: download dependencies
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}'
+        type: exec
+        command
+          git clone
+          https://isbur:<redacted>@github.com/isbur/rpd-generator && cd
+          rpd-generator && yarn init -y
+        component: nodejs
+  - name: run the web app
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/nodejs-web-app/app'
+        type: exec
+        command: nodemon app.js
+        component: nodejs
+  - name: run the web app (debugging enabled)
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/nodejs-web-app/app'
+        type: exec
+        command: nodemon --inspect app.js
+        component: nodejs
+  - name: stop the web app
+    actions:
+      - type: exec
+        command: >-
+          node_server_pids=$(pgrep -fx '.*nodemon (--inspect )?app.js' | tr
+          "\\n" " ") && echo "Stopping node server with PIDs:
+          ${node_server_pids}" &&  kill -15 ${node_server_pids} &>/dev/null &&
+          echo 'Done.'
+        component: nodejs
+  - name: Attach remote debugger
+    actions:
+      - referenceContent: |
+          {
+            "version": "0.2.0",
+            "configurations": [
+              {
+                "type": "node",
+                "request": "attach",
+                "name": "Attach to Remote",
+                "address": "localhost",
+                "port": 9229,
+                "localRoot": "${workspaceFolder}",
+                "remoteRoot": "${workspaceFolder}"
+              }
+            ]
+          }
+        type: vscode-launch
