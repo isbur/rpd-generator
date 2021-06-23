@@ -1,5 +1,10 @@
 // создание контеных шаблонов
-function createTemplates() {
+
+function createTemplatesTest() {
+  createTemplates(true);
+}
+
+function createTemplates(isTest) {
   // файл-шаблон РПД
   var template = DriveApp.getFileById('10BziNwk_IniVfaTWQ8oeEW-6g7TEbQLehR5i7TD3_z4');
     
@@ -19,7 +24,7 @@ function createTemplates() {
   var booksRowInxs = getBooksRowInxs(booksSheet);
   
   // собираем id искомых дисциплин
-  var ids = getRpdIds();
+  var ids = getRpdIds(isTest);
   
   var file, spreadsheet, name, id, newDocName, newDoc, docBody, partsData, rowInx;
     
@@ -61,8 +66,9 @@ function getBooksRowInxs(sheet) {
   return rowInx;
 }
 
-function getRpdIds() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+function getRpdIds(isTest) {
+  var sheetName = isTest ? 'Дисциплины ТЕСТ': 'Дисциплины';  
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   var values = sheet.getRange('AH2' + ':AJ' + sheet.getLastRow()).getValues();
   var ids = [];
   

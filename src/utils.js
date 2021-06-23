@@ -58,8 +58,8 @@ function findDisciplineInx(id, name, table) {
     row = table[i];
     
     if (row[6] == id
-        || row[8] == getRussianName(name)
-        || !isEmpty(row[9]) && row[9] == getEnglishName(name)) {
+        && (row[8] == getRussianName(name)
+        || !isEmpty(row[9]) && row[9] == getEnglishName(name))) {
       return i;
     }
   }  

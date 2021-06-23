@@ -1,9 +1,10 @@
 {
-    "timeZone": "Europe/Moscow",
-    "dependencies": {
-    },
-    "exceptionLogging": "STACKDRIVER",
-    "executionApi": {
-        "access": "ANYONE"
-    }
+  "timeZone": "Europe/Moscow",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "executionApi": {
+    "access": "ANYONE"
+  },
+  "runtimeVersion": "V8"
 }

@@ -88,10 +88,11 @@ function getTitles(sheetId) {
 }
 
 function getConnectId(names, nameRus, nameEng, connectValues) {
-  var name1 = toStr(names[0]);
-  var name2 = toStr(names[1]);
+  var name1 = toStr(names[0]).toLowerCase();
+  var name2 = toStr(names[1]).toLowerCase();
   var nameEng1, nameRus1;
-  var i, row, rus, eng;
+  var i, row, rus, eng, id, isRusEqual;
+  var result = [null, null];
 
   if (/[а-яА-ЯЁё]/.test(name1)) {
     nameRus1 = name1;
@@ -111,16 +112,32 @@ function getConnectId(names, nameRus, nameEng, connectValues) {
 
   for (i = 0; i < connectValues.length; i++) {
     row = connectValues[i];
-    rus = toStr(row[1]);
-    eng = toStr(row[2]);
+    rus = toStr(row[1]).toLowerCase();
+    eng = toStr(row[2]).toLowerCase();
+    id = toStr(row[0]);
+    isRusEqual = false;
 
-    if (nameEng1 && nameEng1 === eng || nameRus1 === rus
-        || nameEng && nameEng === eng || nameRus === rus) {
-      return toStr(row[0])
+    if (nameRus1 === rus || nameRus === rus) {
+      result[0] = id;
+      isRusEqual = true;
+    }
+
+    if (nameEng1 && nameEng1 === eng || nameEng && nameEng === eng) {
+      result[1] = id;
+ 
+      if (isRusEqual) {
+        return id;
+      }
     }
   }
 
-  return null;
+  return result[0] || result[1];
+}
+
+function disciplineHasBothForms(name, values) {
+  const except = ['физическая культура и спорт', 'элективные курсы по физической культуре и спорту'];
+
+  return except.indexOf(name) === -1 && !isEmpty(values[3]) && (!isEmpty(values[4]) || !isEmpty(values[5]));
 }
 
 function getMarks() {
@@ -167,19 +184,31 @@ function getCompetencies(row, header) {
 }
 
 function getCertificationForm(values) {
+  const result = [];
+
   if (!isEmpty(values[3])) {
-    return ['экзамен', setCommas(values[3].toString().trim())];
+    result.push('экзамен', setCommas(toStr(values[3])));
   }
 
   if (!isEmpty(values[4])) {
-    return ['зачет', setCommas(values[4].toString().trim())];
+    result.push('зачет', setCommas(toStr(values[4])));
   }
 
   if (!isEmpty(values[5])) {
-    return ['зачет с оценкой', setCommas(values[5].toString().trim())];
+    result.push('зачет с оценкой', setCommas(toStr(values[5])));
   }
 
-  return ['', ''];
+  return result;
+}
+
+function splitSemesters(semesters) {
+  var splitted = semesters.split(', ');
+  
+  if (splitted.length === 2) {
+    return splitted;
+  } else {
+    return [semesters, semesters];
+  }
 }
 
 function isBlockTrue(value) {
@@ -191,16 +220,25 @@ function isBlockTrue(value) {
 }
 
 function findMarks(marks, rus, eng) {
-  var row, name;
+  var row, name, rusName, engName;
+  var result = [null, null];
 
   for (var i = marks.length; i--;) {
     row = marks[i];
     name = row[0].trim();
+    rusName = getRussianName(name).toLowerCase();
+    engName = getEnglishName(name).toLowerCase();
+    
+    if (rusName == rus) {
+      result[0] = row;
+    }
 
-    if (getRussianName(name) == rus || !isEmpty(eng) && getEnglishName(name) == eng) {
-      return row;
+    if (!isEmpty(eng) && engName == eng) {
+      result[1] = row;
     }
   }
+  
+  return result[0] || result[1];
 }
 
 function getPoints(number) {
@@ -251,6 +289,29 @@ function deleteFiles(folder) {
   while (files.hasNext()) {
     files.next().setTrashed(true);
   }
+}
+
+function getLanguage(name) {
+  if (isSpeciaRussianDiscipline(name)) {
+    return 'русский';
+  } else {
+    return 'английский';
+  }
+}
+
+function getProf(name, profs) {
+  if (isSpeciaRussianDiscipline(name)) {
+    return '';
+  } else {
+    return ' и позволяет получить углубленные знания и навыки обучающимися для успешной профессиональной деятельности в области ' + profs;
+  }
+}
+
+function isSpeciaRussianDiscipline(name) {
+  var russianDisciplines = ['Физическая культура и спорт', 'Элективные курсы по физической культуре',
+                            'Философия', 'История', 'Безопасность жизнедеятельности'];
+  
+  return russianDisciplines.indexOf(name) !== -1;
 }
 
 
@@ -339,13 +400,13 @@ function findDiscipline(values, nameRus, nameEng, planCode, code, semester) {
   for (var i = 0; i < values.length; i++) {
     row = values[i];
     names = row[7].split(' / ');
-    rus = row[8].trim();
-    eng = row[9].trim();
-    rusEng = row[7].trim();
+    rus = toStr(row[8]);
+    eng = toStr(row[9]);
+    rusEng = toStr(row[7]);
     planCodeIsTrue = row[0].indexOf(planCode) === 0;
-    codeIsTrue = toString(row[1]).indexOf(code) === 0;
-    semesterIsTrue = semester - row[11].toString().slice(-1) > 0;
-    engNameIsTrue = nameEng == eng || names[0] && nameEng == names[0].trim() || names[1] && nameEng == names[1].trim();
+    codeIsTrue = toStr(row[1]).indexOf(code) === 0;
+    semesterIsTrue = semester - toStr(row[11]).slice(-1) > 0;
+    engNameIsTrue = nameEng && nameEng == eng || toStr(names[0]) && nameEng == toStr(names[0]) || names[1] && nameEng == toStr(names[1]);
     nameIsTrue = nameRus == rus || engNameIsTrue || nameRus == rusEng || nameEng == rusEng;
 
     if (nameIsTrue && planCodeIsTrue && codeIsTrue && semesterIsTrue) {
@@ -368,10 +429,12 @@ function getPrerequisites(values, inx, prerequisites, connect) {
   var idList = prerequisites.list;
   var value = values[inx];
   var planCode = value[0].slice(0, -4);
-  var code = value[1];
-  var semester = value[11].toString().slice(-1);
+  var code = toStr(value[1]);
+  var semester = toStr(value[11]).slice(-1);
   var discipline, row, result = [];
-  for (var i = 0; i < idList.length; i++) {
+  var prefix = 'Содержание дисциплины (модуля) является логическим продолжением ';
+  
+  for (var i = 0; i < idList.length; i++) {    
     for (var j = 0; j < connect.length; j++) {
       row = connect[j];
 
@@ -387,23 +450,14 @@ function getPrerequisites(values, inx, prerequisites, connect) {
   }
 
   if (result.length) {
-    prerequisites.data = 'изучения дисциплин: ' + result.join(', ')
+    prerequisites.data = prefix + 'изучения дисциплин: ' + result.join(', ') + '.';
   } else {
-    prerequisites.data = code == '09.03.01' ? prerequisites.bachelor : prerequisites.master;
+    if (code == '09.03.01') {
+      prerequisites.data = prerequisites.bachelor ? prefix + prerequisites.bachelor + '.' : '';
+    } else {
+      prerequisites.data = prerequisites.master ? prefix + prerequisites.master + '.' : '';
+    }
   }
-
-  /**
-   * New behavior!
-   */
-
-   if (data.list == "" && prerequisites.bachelor == "" && prerequisites.master == ""){
-        prerequisites.thisIsASpecialCase = true
-        prerequisites.stringToWrite = ""
-   } else {
-        prerequisites.thisIsASpecialCase = false
-   }
-
-   /**********************/
 
   return prerequisites;
 }

@@ -5,16 +5,24 @@
 function onOpen() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();  
   ss.addMenu('Скрипты', [
-    {name: 'Сделать выгрузку', functionName: 'getDisciplines'},
+    {name: 'Сделать выгрузку', functionName: 'getDisciplines'},    
     {name: 'Создать контентные шаблоны', functionName: 'createTemplates'},
-    {name: 'Создать РПД', functionName: 'createRPD'}
+    {name: 'Создать РПД', functionName: 'createRPD'},
+    {name: 'Сделать выгрузку ТЕСТ', functionName: 'getDisciplinesTest'},
+    {name: 'Создать контентные шаблоны ТЕСТ', functionName: 'createTemplatesTest'},
+    {name: 'Создать РПД ТЕСТ', functionName: 'createRPDTest'},
   ]);
 }
 
+function getDisciplinesTest() {
+  getDisciplines(true);
+}
+
 // создание списка дисциплин из уп
-function getDisciplines() {
+function getDisciplines(isTest) {
   // файл "Выгрузка  дисциплин из УП"
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+  var sheetName = isTest ? 'Дисциплины ТЕСТ' : 'Дисциплины';
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   
   // id файла "Данные из титульных листов"
   var titleSheetId = '1CGpDIgqJ-sSDw7tNj1D2uwJETYkGNTHnMtpyXZLVNFc';  
@@ -72,7 +80,8 @@ function createDisciplineTableO(sheetId, titles, codes, rpdData) {
   values.forEach(function(row, i) {
     var block, name, blockIsTrue, disciplineIsTrue;
     var index, code1, code2, title, title0, title1, title2, title3, title5, title6,
-        id, form, lecture, practice, competencies;
+        id, rusName, form, semesters, semValues, lecture, practice, competencies;
+    var hasBothForms, isEnglish;
     
     block = isBlock(row[0]) ? row[0] : currentBlock;
     blockIsTrue = block && isBlockTrue(block);
@@ -93,16 +102,36 @@ function createDisciplineTableO(sheetId, titles, codes, rpdData) {
       
       id = title0 + '.' + code1 + '.' + code2 + '.' + inxToString(++inx);
       form = getCertificationForm(row);
+      hasBothForms = disciplineHasBothForms(name.toLowerCase(), row);
+      isEnglish = name.toLowerCase() === 'иностранный язык';
+      semesters = form[1];
       lecture = getLecture(row, header) || '';
       practice = getPractice(row, header) || '';
       competencies = getCompetencies(row, header);
+      rusName = getRussianName(name);
       
       table[j++] = [id, title1, title2, title3, title5, title6, index,
-                    name, getRussianName(name), getEnglishName(name), form[0], form[1],
+                    name, rusName, getEnglishName(name), form[0], semesters,
                     row[6], row[9], lecture, practice, row[12], row[13],
                    '-', '-', '-', '-', '-', '-', '-', competencies,
                     '', '', '', '', '1', '', '-',
                     rpdData[title1 + title2 + title3 + index + name] || '', sheetId, ''];
+                    
+      if (isEnglish || hasBothForms) {
+        if (hasBothForms) {
+          semValues = [semesters, form[3]];
+         } else {
+          semValues = splitSemesters(semesters);
+        }
+    
+        table[j-1].splice(11, 7, semValues[0], row[6]/2, row[9]/2, lecture/2, practice/2, row[12]/2, row[13]/2);
+        table[j++] = [id, title1, title2, title3, title5, title6, index,
+                    name, rusName, getEnglishName(name), form[2] || form[0], semValues[1],
+                    row[6]/2, row[9]/2, lecture/2, practice/2, row[12]/2, row[13]/2,
+                   '-', '-', '-', '-', '-', '-', '-', competencies,
+                    '', '', '', '', '1', '', '-',
+                    rpdData[title1 + title2 + title3 + index + name] || '', sheetId, ''];
+      }
     }
     
     currentBlock = block;
@@ -120,24 +149,44 @@ function createDisciplineTableZ(sheetId, table) {
   values.shift();  
   values.forEach(function(row, i) {
     var block, blockIsTrue, disciplineIsTrue;
-    var name, id, inx, form, lecture, practice, competencies;
+    var name, id, inx, form, semesters, semValues, lecture, practice, competencies;
+    var hasBothForms, isEnglish;
     
     block = isBlock(row[0]) ? row[0] : currentBlock;
     blockIsTrue = block && isBlockTrue(block);
     id = row[1];
-    name = row[2].trim();
+    name = toStr(row[2]);
     disciplineIsTrue = isDisciplineTrue(name);
     
     if (blockIsTrue && disciplineIsTrue) {
       inx = name ? findDisciplineInx(id, name, table) : -1;
       
       if (inx >= 0) {
-        form = getCertificationForm(row);        
+        form = getCertificationForm(row);
+        hasBothForms = (inx + 1 < table.length) && table[inx][0] === table[inx + 1][0];
+        isEnglish = name.toLowerCase() === 'иностранный язык';
+        semesters = form[1];
         lecture = getLecture(row, header) || '';
         practice = getPractice(row, header) || '';
-        table[inx].splice(18, 7, form[1], row[6], row[9], lecture, practice, row[12], row[13]);
-        table[inx][30] = '';
-        table[inx][32] = 'При заочной форме осваивается во время ' + form[1] + ' курса обучения.';
+        
+        if (isEnglish || hasBothForms) {
+          if (form[3]) {
+            semValues = [semesters, form[3]];
+          } else {
+            semValues = splitSemesters(semesters);
+          }
+ 
+          table[inx].splice(18, 7, semValues[0], row[6]/2, row[9]/2, lecture/2, practice/2, row[12]/2, row[13]/2);
+          table[inx][30] = '';
+          table[inx][32] = 'При заочной форме осваивается во время ' + semValues[0] + ' курса обучения.';
+          table[inx + 1].splice(18, 7, semValues[1], row[6]/2, row[9]/2, lecture/2, practice/2, row[12]/2, row[13]/2);
+          table[inx + 1][30] = '';
+          table[inx + 1][32] = 'При заочной форме осваивается во время ' + semValues[1] + ' курса обучения.';
+        } else {
+          table[inx].splice(18, 7, semesters, row[6], row[9], lecture, practice, row[12], row[13]);
+          table[inx][30] = '';
+          table[inx][32] = 'При заочной форме осваивается во время ' + semesters + ' курса обучения.';
+        }
       } else {
         Logger.log('Дисциплина "' + name + '" с id ' + id + 'найдена в заочке, но не найдена в очке УП ' + sheetId);
       }
@@ -150,13 +199,15 @@ function createDisciplineTableZ(sheetId, table) {
 }
 
 function setTable(table, sheet, marks, connectValues, sheetId) {
-  table.forEach(function(row) {
+  table.forEach(function(row, inx) {
     var name = toStr(row[7]);
-    var rus = toStr(row[8]);
-    var eng = toStr(row[9]);
+    var rus = toStr(row[8]).toLowerCase();
+    var eng = toStr(row[9]).toLowerCase();
     var marksRow = findMarks(marks, rus, eng);
     var id = getConnectId(toStr(name).split('/'), rus, eng, connectValues);
     var errors = [];
+    var hasBothForms;
+    var prevRow = table[inx - 1];
     
     if (!marksRow) {
       errors.push('Не найдена разбалловка');
@@ -170,7 +221,18 @@ function setTable(table, sheet, marks, connectValues, sheetId) {
     if (id === null) {
       errors.push('Не найдена дисциплина в файле соответствия');
     } else {
-      row[35] = id;
+      hasBothForms = inx > 0 && row[0] === table[inx - 1][0];
+      
+      if (hasBothForms) {
+        if (parseInt(row[11]) >= parseInt(prevRow[11])) {
+          row[35] = id + 'д';
+        } else {
+          row[35] = id;
+          table[inx - 1][35] = id + 'д';
+        }  
+      } else {
+        row[35] = id;
+      }    
     }
     
     row[31] = errors.join('; ');

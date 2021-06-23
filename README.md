@@ -1,10 +1,14 @@
 # Генератор РПД
 
+## Google-related things
+
+[Генерация РПД](https://drive.google.com/drive/folders/1Y1JV8WWMs5OEc961P4ue-lye6Ul0ST_g) — основная рабочая папка
+
+[Выгрузка дисциплин из УП](https://docs.google.com/spreadsheets/d/1PiJMfviYI1utc4CaUD_RTg2sZOVtUm3MJQCKdOjoWZA/edit#gid=0) — основная таблица со скриптами, выполняющими всю чёрную работу. [Старая версия этой папки](https://drive.google.com/drive/u/0/folders/1vwloMcEt6jZ3hJuH8ROcSQBIXgu6VBUa).
+
 ## Age of Replit
 
 Ранее разработка велась в Redhat hosted Eclipse Che, но они постоянно там что-то меняют, плюс в целом это довольно громоздкая конструкция, которая на бесплатном плане медленно грузится, поэтому теперь я решил перейти в более легковесный Replit, благо кажется, что базовые потребности в настройке окружения тут поддерживаются.
-
-https://drive.google.com/drive/folders/1vwloMcEt6jZ3hJuH8ROcSQBIXgu6VBUa – основная рабочая папка
 
 ### Clasp
 

@@ -11,15 +11,19 @@
  * @see getPrerequisitesValues
  * @see helpers.js
  */
-function createRPD() {
-
+ 
+function createRPDTest() {
+  createRPD(true);
+}
+function createRPD(isTest) {
   // папка контентных шаблонов
   var templatesFolder = DriveApp.getFolderById('19vzun-cZz9ogk5yY9e54aoIIFtOMHN9o');
   // имена файлов контентных шаблонов
   var templateNames = getTemplateNames(templatesFolder);
 
   // файл "Выгрузка дисциплин из УП"
-  var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Дисциплины');
+  var sheetName = isTest ? 'Дисциплины ТЕСТ' : 'Дисциплины';
+  var disciplineSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
   // значения таблицы "Выгрузка  дисциплин из УП"
   var values = disciplineSheet.getRange('A2:AJ' + disciplineSheet.getLastRow()).getValues();
 
@@ -104,6 +108,8 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   var control = Number(values[17]);
   var self = Number(values[16]);
   var contactHours = lectures + practics;
+  var russianName = values[8].trim();
+  var isCredit = toStr(values[10]) === 'зачет';
 
   var competenciesString = values[25];
   var competenciesArr = competenciesString.split('; ');
@@ -120,7 +126,8 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{extra_books}', prerequisites.extraBooks);
   doc.replaceText('{discipline_code}', disciplineCode);
   doc.replaceText('{discipline_name}', values[7].trim());
-  doc.replaceText('{name_in_russian}', values[8].trim());
+  doc.replaceText('{name_in_russian}', russianName);
+  doc.replaceText('{all_competitences}', competenciesString);
 
   if (nameEng) {
     doc.replaceText('{name_in_english}', nameEng);
@@ -132,7 +139,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{type_of_student}', getType(values[1]));
   doc.replaceText('{course_code}', courseCode);
   doc.replaceText('{course_name}', values[3].trim());
-  doc.replaceText('{language}', 'английский');
+  doc.replaceText('{language}', getLanguage(russianName));
   doc.replaceText('{exam}', exam);
   doc.replaceText('{length_in_zet}', lengthInZet);
   doc.replaceText('{length_in_ach}', lengthInAch);
@@ -149,36 +156,22 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
   doc.replaceText('{length_in_ach_with_words}', lengthInAch + getAcademName(lengthInAch));
   doc.replaceText('{contact_hours_with_words}', contactHours + getAcademName(contactHours));
   doc.replaceText('{competitences_in_marks}', competenciesNames.join(', '));
-  doc.replaceText('{prof_branch}', profs[compInx]);
-
-  doc.replaceText('{excellent_mark}', aMark + ' - 100 баллов');
-  doc.replaceText('{good_mark}', bMark + ' - ' + (aMark - 1) + ' баллов');
-  doc.replaceText('{bad_mark}', cMark + ' - ' + (bMark - 1) + ' баллов');
-  doc.replaceText('{lowest_mark}', dMark + ' - ' + (cMark - 1) + ' баллов');
-
-
-  // TODO: behavior needs to be modified
-  // 0. Сохранить поведение по умолчанию
-  // 1. Ячейка N пустая – тогда надо подставить фразу "Содержание дисциплины..." и вставить содержимое ячеек O и P | уточнить насчёт фразы
-  //    - Судя по всему, надо просто вставить содержимое одной из ячеек, не вставляя дополнительных фраз?
-  // 2. Все три ячейки – затирать шаблон | уточнить!
-
-  // Old behavior
-  // doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
-
-  // C этим подходом есть такая проблема: а что, если я неправильно понял предыдущую версию скрипта, и что-то где-то сломается?
-  // Надо _неинвазивно_ прилепить новое поведение.
-  //    // Пусть теперь вся строка формируется в getPrerequisites()
-  //    doc.replaceText('{prerequisites}', prerequisites.stringToWrite)
-
-  // Что же в итоге
-  if(prerequisites.thisIsASpecialCase === true){
-      // My behvaior
-      doc.replaceText('{prerequisites}', prerequisites.stringToWrite);
-  } else {
-      // Old behavior
-      doc.replaceText('{prerequisites}', 'Содержание дисциплины (модуля) является логическим продолжением ' + prerequisites.data);
-  }
+  doc.replaceText('{prof_branch}', getProf(russianName, profs[compInx]));
+  doc.replaceText('{prerequisites}', prerequisites.data);
+  
+  doc.replaceText('{excellent_mark_1}', isCredit ? '-' : aMark);
+  doc.replaceText('{excellent_mark_2}', isCredit ? '-' : '100');
+  doc.replaceText('{good_mark_1}', isCredit ? '-' : bMark);
+  doc.replaceText('{good_mark_2}', isCredit ? '-' : aMark - 1);
+  doc.replaceText('{bad_mark_1}', isCredit ? '-' : cMark);
+  doc.replaceText('{bad_mark_2}', isCredit ? '-' : bMark - 1);
+  doc.replaceText('{lowest_mark_1}', isCredit ? '-' : dMark);
+  doc.replaceText('{lowest_mark_2}', isCredit ? '-' : cMark - 1);
+  
+  doc.replaceText('{pass_mark_1}', isCredit ? '60' : '-');
+  doc.replaceText('{pass_mark_2}', isCredit ? '100' : '-');
+  doc.replaceText('{fail_mark_1}', isCredit ? '0' : '-');
+  doc.replaceText('{fail_mark_2}', isCredit ? '59' : '-');
 
   // проставляем данные заочки
   if (hasExtramural) {
@@ -190,7 +183,7 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
     var zSelf = Number(values[23]);
     var zContactHours = zLectures + zPractics;
 
-    doc.replaceText('{z_year}', values[32]);
+    doc.replaceText('{z_year}', values[32] + ' ');
     doc.replaceText('{z_exam}', getSemesters(values[18], true));
     doc.replaceText('{z_l_in_zet}', zLengthInZet);
     doc.replaceText('{z_l_in_ach}', zLengthInAch);
@@ -310,7 +303,6 @@ function processDoc(doc, values, competencies, extraData, variations, prerequisi
         }
         isFirst = false;
       }
-
 
       table.replaceText('{p' + hoursNumber + '_lectures}', lectures - getSum(pLectures));
       table.replaceText('{p' + hoursNumber + '_practics}', practics - getSum(pPractics));
